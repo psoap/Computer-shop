@@ -1,0 +1,126 @@
+.fnl-header{
+    position: relative;
+    top: 0;
+    width: 100%;
+    clear: both;
+}
+
+.fnl-header-left{
+    width: 25%;
+    height: 90px;
+    float: left;
+}
+
+.top-logo{
+    margin-top: 25px;
+}
+
+.fnl-header-center{
+    width: 50%;
+    height: 90px;
+    float: left;
+}
+
+.fnl-header-right{
+    width: 25%;
+    height: 90px;
+    float: left;
+}
+
+#fnl-header-mini-bar{
+    background-color: #222628;
+    width: 100%;
+    height: 30px;
+    font-size: 13px;
+    float: left;
+}
+
+.fnl-header-mini-bar-left{
+    max-width: 75%;
+    height: 100%;
+}
+
+.fnl-header-mini-bar-right{
+    height: 100%;
+    float: right;
+}
+
+#fnl-header-bar{
+    background-color: #222628;
+    width: 100%;
+    height: 45px;
+}
+
+.fnl-header-bar-left{
+    width: 25%;
+    height: 100%;
+    float: left;
+}
+
+.top-nav-button{
+    color: #fefefe;
+    font-weight: bold;
+    font-size: 19px;
+    background-color: #3eae42;
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.top-nav-button:hover{
+     background-color: #4cbb50;
+ }
+
+.top-search{
+    position: relative;
+    margin: 7px 7px 7px 20px;
+}
+
+.top-search input[type="text"]{
+    position: absolute;
+    margin: 0px;
+    font-size: 20px;
+    height: 25px;
+    width: 60%;
+    border-radius: 5px;
+}
+
+.top-search input[type="submit"]{
+    font-weight: bold;
+    position: absolute;
+    margin-left: 62%;
+    height: 30px;
+    background-color: #363d41;
+    border-radius: 5px;
+}
+
+.top-search input[type="submit"]:hover{
+    background-color: #4bae4f;
+    height: 30px;
+    border-radius: 5px;
+}
+
+.fnl-header-bar-right{
+    width: 75%;
+    height: 100%;
+    float: right;
+}
+
+.top-button-container{
+    font-family: Corbel, Verdana, serif;
+    color: #fefefe;
+    height: 100%;
+    border-color: #777777;
+    border-style: solid;
+    border-width: 0px 1px 0px 1px;
+    background-color: #292e30;
+    display: inline-block;
+    vertical-align: middle;
+    text-decoration: none;
+}
+
+.top-button-container:hover{
+    background-color: #4bae4f;
+}

@@ -1,0 +1,27 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<ul class="menu">
+    <c:if test="${not empty sessionScope.lang_categories}">
+        <c:forEach var="category" items="${sessionScope.lang_categories}">
+            <c:choose>
+                <c:when test="${not empty category.children}">
+                    <li class="menu-list">
+                            ${category.name}
+                        <ul>
+                            <c:forEach var="subCategory" items="${category.children}">
+                                <a href="<c:url value="/do/catalog_product?id=${subCategory.id}"/>">
+                                    <li class="submenu-list">${subCategory.name}</li>
+                                </a>
+                            </c:forEach>
+                        </ul>
+                    </li>
+                </c:when>
+                <c:when test="${category.parentId eq 0}">
+                    <a href="<c:url value="/do/catalog_product?id=${category.id}"/>">
+                        <li>${category.name}</li>
+                    </a>
+                </c:when>
+            </c:choose>
+        </c:forEach>
+    </c:if>
+</ul>

@@ -1,0 +1,15 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<ul class="menu">
+    <a href="<c:url value="/do/manage_categories"/>">
+        <li><fmt:message key="txt.manage_categories" bundle="${langBundle}" /></li>
+    </a>
+    <a href="<c:url value="/do/catalog_user"/>">
+        <li><fmt:message key="txt.users" bundle="${langBundle}" /></li>
+    </a>
+    <a href="<c:url value="/do/catalog_users_orders?id=2"/>">
+        <li><fmt:message key="txt.pending_orders" bundle="${langBundle}" /></li>
+    </a>
+    <a href="<c:url value="/do/manage_langs"/>">
+        <li><fmt:message key="txt.manage_langs" bundle="${langBundle}" /></li>
+    </a>
+</ul>

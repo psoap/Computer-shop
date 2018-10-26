@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+        version="2.1">
+
+    <tlib-version>1.0</tlib-version>
+    <short-name>locale</short-name>
+    <uri>http://epam.com/myTld/locale</uri>
+    <function>
+        <name>getDisplayName</name>
+        <function-class>com.epam.computershop.util.LocaleUtil</function-class>
+        <function-signature>java.lang.String getDisplayName(java.util.Locale)</function-signature>
+    </function>
+    <function>
+        <name>getTranslatedName</name>
+        <function-class>com.epam.computershop.util.LocaleUtil</function-class>
+        <function-signature>java.lang.String getTranslatedName(java.util.Locale, java.util.Locale)</function-signature>
+    </function>
+</taglib>
