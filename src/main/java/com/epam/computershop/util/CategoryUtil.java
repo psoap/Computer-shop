@@ -15,7 +15,6 @@ public final class CategoryUtil {
                             .filter(parentCategory -> parentCategory.getId()==category.getParentId())
                             .findFirst().ifPresent(cat -> {
                                 cat.getChildren().add(category);
-//                                lcats.remove(category);
                             });
                 }
             });
