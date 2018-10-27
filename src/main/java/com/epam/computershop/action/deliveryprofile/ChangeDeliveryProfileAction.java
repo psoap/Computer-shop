@@ -99,6 +99,7 @@ public class ChangeDeliveryProfileAction extends Action {
                 }
             } else {
                 try {
+                    buffDeliveryProfile.setId(profileIdFromRequest);
                     edit(currentUser, buffDeliveryProfile, messagesForJsp);
                     resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
                     responseUrl = ((String) req.getServletContext().getAttribute(ConstantStorage.APPLICATION_URL_WITH_SERVLET_PATH))
