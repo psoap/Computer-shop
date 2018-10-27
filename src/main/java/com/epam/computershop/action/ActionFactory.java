@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class ActionFactory {
     private volatile static ActionFactory currentActionFactory;
-    private static Map<String, Action> actionsUries;
+    private static final Map<String, Action> actionsUries = new HashMap<>();
 
     public static final String ACTION_USER_LOGIN = "/auth";
     public static final String ACTION_USER_REGISTRATION = "/reg";
@@ -75,8 +75,6 @@ public class ActionFactory {
     public static final String ACTION_LANG_SWAP = "/swap_lang";
 
     private ActionFactory() {
-        actionsUries = new HashMap<>();
-
         //User account actions
         actionsUries.put(ACTION_USER_LOGIN, new LoginAction(ConstantStorage.ROLE_ID_GUEST_ONLY));
         actionsUries.put(ACTION_USER_REGISTRATION, new RegistrationAction(ConstantStorage.ROLE_ID_GUEST_ONLY));

@@ -9,6 +9,9 @@ import javax.xml.bind.DatatypeConverter;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 public class HashUtil {
+    private HashUtil() {
+    }
+
     public static String getSHA1(String string) throws NoSuchAlgorithmException {
         MessageDigest sha = MessageDigest.getInstance("SHA-1");
         sha.update(string.getBytes());

@@ -1,6 +1,8 @@
 package com.epam.computershop.entity;
 
-public class DeliveryProfile implements Entity {
+import java.io.Serializable;
+
+public class DeliveryProfile implements Entity, Serializable {
     private long id;
     private String firstName;
     private String lastName;

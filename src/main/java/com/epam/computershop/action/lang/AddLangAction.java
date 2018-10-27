@@ -30,9 +30,10 @@ public class AddLangAction extends Action {
     private List<Category> fillCategoriesTranslate(String langCode, String[] translateCategoriesNames, CopyOnWriteArrayList<Category> currentLangCategories) {
         List<Category> translatedCategories = new ArrayList<>(currentLangCategories.size());
         for (int i = 0; i < currentLangCategories.size(); i++) {
-            Category cloneCategory = currentLangCategories.get(i).clone();
+            Category cloneCategory = new Category(currentLangCategories.get(i));
             cloneCategory.setLangCode(langCode);
             cloneCategory.setName(translateCategoriesNames[i]);
+            cloneCategory.setChildren(new ArrayList<>());
             translatedCategories.add(cloneCategory);
         }
         return translatedCategories;

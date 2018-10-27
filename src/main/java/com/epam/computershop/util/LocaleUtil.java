@@ -4,6 +4,9 @@ import java.util.Locale;
 
 //Util class for locale.tld
 public final class LocaleUtil {
+    private LocaleUtil() {
+    }
+
     public static String getDisplayName(Locale locale) {
         return locale.getDisplayName(locale);
     }

@@ -13,7 +13,7 @@ import javax.ws.rs.core.HttpHeaders;
 
 public class MainServlet extends HttpServlet {
     private static final long serialVersionUID = System.currentTimeMillis();
-    private ActionFactory actionFactory;
+    private static ActionFactory actionFactory;
 
     @Override
     public void init() throws ServletException {

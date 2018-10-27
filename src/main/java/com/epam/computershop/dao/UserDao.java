@@ -22,9 +22,10 @@ public class UserDao implements Dao<User> {
             insertPreparedStatement.setShort(ConstantStorage.INDEX_4, entity.getRoleId());
             insertPreparedStatement.setBigDecimal(ConstantStorage.INDEX_5, entity.getBalance());
             insertPreparedStatement.execute();
-            ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys();
-            if (keysResultSet.next()) {
-                entity.setId(keysResultSet.getLong(SQLQueriesStorage.COLUMN_ID));
+            try(ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys()){
+                if (keysResultSet.next()) {
+                    entity.setId(keysResultSet.getLong(SQLQueriesStorage.COLUMN_ID));
+                }
             }
             return entity;
         } finally {

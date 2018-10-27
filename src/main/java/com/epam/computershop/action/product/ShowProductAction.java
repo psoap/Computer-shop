@@ -33,9 +33,9 @@ public class ShowProductAction extends Action {
                 if (product != null) {
                     req.setAttribute(ConstantStorage.PRODUCT, product);
                 } else {
-                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 }
-            } catch (SQLException | ConnectionPoolException | IOException e) {
+            } catch (SQLException | ConnectionPoolException e) {
                 LOGGER.error("Failed to select product id - " + productIdFromRequest);
             }
         } else {

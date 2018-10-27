@@ -65,12 +65,9 @@ public class EditPersonalAction extends Action {
                 }
             }
         } else {
-            if (!password.equals(confirmPassword)) {
-                messagesForJsp.add(ConstantStorage.CHANGE_USER_WARN_NOT_EQUALS_PASS);
-            } else {
-                password = currentUser.getPassword();
-            }
+            password = currentUser.getPassword();
         }
+
         String email = req.getParameter(ConstantStorage.EMAIL);
         if (!Validator.validate(ValidatorSettingsStorage.REGISTRATION_EMAIL_PATTERN, email)) {
             messagesForJsp.add(ConstantStorage.CHANGE_USER_WARN_BAD_EMAIL);

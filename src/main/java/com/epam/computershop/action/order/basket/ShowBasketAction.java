@@ -57,7 +57,7 @@ public class ShowBasketAction extends Action {
             req.setAttribute(ConstantStorage.PRODUCTS, basketProducts);
             req.setAttribute(ConstantStorage.ORDER_STATUS_ID, ConstantStorage.ORDER_STATUS_BASKET);
         } catch (SQLException | ConnectionPoolException e) {
-            LOGGER.error("Failed to select products from basket, by user - " + currentUser.getLogin());
+            LOGGER.error("Failed to select products from basket");
             resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
             responseUrl = URLUtil.getRefererURL(req);
         }

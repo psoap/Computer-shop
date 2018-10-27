@@ -14,13 +14,16 @@ public class UploadServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(UploadServlet.class);
     private static final String URI_SEPARATOR = "/";
     private static final int FILENAME_LENGTH = 7;
-    private String uploadFilePath;
-    private String uploadPath;
+    private static String uploadFilePath;
+    private static String uploadPath;
 
     @Override
     public void init() throws ServletException {
         String applicationPath = getServletContext().getRealPath(ConstantStorage.EMPTY_STRING);
         uploadPath = getServletContext().getInitParameter("uploadsFolder");
+        if(uploadPath==null){
+            uploadPath = "uploads";
+        }
         uploadFilePath = applicationPath + File.separator + uploadPath;
         File uploadFolder = new File(uploadFilePath);
         if (!uploadFolder.exists()) {
@@ -34,7 +37,7 @@ public class UploadServlet extends HttpServlet {
             if (part != null && part.getSize() > ConstantStorage.ZERO) {
                 HttpSession session = req.getSession();
                 session.removeAttribute(ConstantStorage.FILE_URL);
-                String filenameExtension = part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf("."));
+                String filenameExtension = part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf('.'));
                 try {
                     String fileNameWithoutPath = HashUtil.getRandomMd5().substring(ConstantStorage.ZERO, FILENAME_LENGTH) + filenameExtension;
                     part.write(uploadFilePath + File.separator + fileNameWithoutPath);

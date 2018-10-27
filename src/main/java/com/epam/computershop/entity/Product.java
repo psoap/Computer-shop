@@ -1,9 +1,10 @@
 package com.epam.computershop.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Map;
 
-public class Product implements Entity {
+public class Product implements Entity, Serializable {
     private long id;
     private String name;
     private String shortDescription;

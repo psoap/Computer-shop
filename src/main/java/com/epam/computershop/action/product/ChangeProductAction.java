@@ -36,18 +36,10 @@ public class ChangeProductAction extends Action {
         }
     }
 
-    private String add(String name, String shortDescription, String description, BigDecimal price,
-                       short categoryId, String imageUrl, HttpServletRequest req, HttpServletResponse resp,
+    private String add(Product product, HttpServletRequest req,
                        List<String> messagesForJsp) {
         String responseUrl = ActionFactory.ACTION_PRODUCT_SHOW_EDIT_PAGE;
         ProductDao productDao = new ProductDao();
-        Product product = new Product();
-        product.setName(name);
-        product.setShortDescription(shortDescription);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setCategoryId(categoryId);
-        product.setImageUrl(imageUrl);
         try {
             productDao.insert(product);
             req.setAttribute(ConstantStorage.PRODUCT, product);
@@ -61,32 +53,31 @@ public class ChangeProductAction extends Action {
         return responseUrl;
     }
 
-    private String edit(long id, String name, String shortDescription, String description, BigDecimal price,
-                        short categoryId, String imageUrl, HttpServletRequest req, HttpServletResponse resp,
+    private String edit(Product product, HttpServletRequest req,
                         List<String> messagesForJsp) {
         String responseUrl = ActionFactory.ACTION_PRODUCT_SHOW_EDIT_PAGE;
         ProductDao productDao = new ProductDao();
         try {
-            Product product = productDao.findById(id);
-            if (product != null) {
-                product.setName(name);
-                product.setShortDescription(shortDescription);
-                product.setDescription(description);
-                product.setPrice(price);
-                product.setCategoryId(categoryId);
-                if(imageUrl!=null){
-                    product.setImageUrl(imageUrl);
+            Product existedProduct = productDao.findById(product.getId());
+            if (existedProduct != null) {
+                existedProduct.setName(product.getName());
+                existedProduct.setShortDescription(product.getShortDescription());
+                existedProduct.setDescription(product.getDescription());
+                existedProduct.setPrice(product.getPrice());
+                existedProduct.setCategoryId(product.getCategoryId());
+                if(product.getImageUrl()!=null){
+                    existedProduct.setImageUrl(product.getImageUrl());
                 }
-                productDao.update(product);
+                productDao.update(existedProduct);
                 req.setAttribute(ConstantStorage.PRODUCT, product);
-                LOGGER.debug("Product id - " + id + " data was updated");
+                LOGGER.debug("Product id - " + product.getId() + " data was updated");
                 messagesForJsp.add(ConstantStorage.GENERAL_SUCCESS);
-                responseUrl = REDIRECT_URI + id;
+                responseUrl = REDIRECT_URI + product.getId();
             } else {
                 messagesForJsp.add(ConstantStorage.GENERAL_WARN_BAD_DATA);
             }
         } catch (SQLException | ConnectionPoolException e) {
-            LOGGER.error("Failed to update product id - " + id);
+            LOGGER.error("Failed to update product id - " + product.getId());
             messagesForJsp.add(ConstantStorage.GENERAL_ERROR_ACTION_FAILED);
         }
         return responseUrl;
@@ -108,10 +99,19 @@ public class ChangeProductAction extends Action {
         validateForm(name, price, categoryId, messagesForJsp);
 
         if (messagesForJsp.isEmpty()) {
+            Product buffProduct = new Product();
+            buffProduct.setName(name);
+            buffProduct.setShortDescription(shortDescription);
+            buffProduct.setDescription(description);
+            buffProduct.setPrice(price);
+            buffProduct.setCategoryId(categoryId);
+            buffProduct.setImageUrl(imageUrl);
+
             if (productIdFromRequest == NumberUtil.INVALID_NUMBER) {
-                responseUrl = add(name, shortDescription, description, price, categoryId, imageUrl, req, resp, messagesForJsp);
+                responseUrl = add(buffProduct, req, messagesForJsp);
             } else {
-                responseUrl = edit(productIdFromRequest, name, shortDescription, description, price, categoryId, imageUrl, req, resp, messagesForJsp);
+                buffProduct.setId(productIdFromRequest);
+                responseUrl = edit(buffProduct, req, messagesForJsp);
             }
             responseUrl = ((String) req.getServletContext().getAttribute(ConstantStorage.APPLICATION_URL_WITH_SERVLET_PATH))
                     .concat(responseUrl);

@@ -93,4 +93,7 @@ public final class ConstantStorage {
     public static final String CHANGE_DELIVPROF_WARN_BAD_PHONE = "change_delivprof.warn.phone";
     //Change category messages
     public static final String CHANGE_CATEGORY_WARN_BAD_NAME = "change_category.warn.name";
+
+    private ConstantStorage() {
+    }
 }

@@ -12,8 +12,10 @@ import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ShowProductsCatalogAction extends Action {
@@ -30,22 +32,28 @@ public class ShowProductsCatalogAction extends Action {
         short categoryIdFromRequest = NumberUtil.tryParseShort(req.getParameter(ConstantStorage.ID));
         short pageIdFromRequest = NumberUtil.tryParseShort(req.getParameter(ConstantStorage.PAGE));
         if (categoryIdFromRequest != NumberUtil.INVALID_NUMBER) {
-            ProductDao productDao = new ProductDao();
-            try {
-                CopyOnWriteArrayList<Category> categories = (CopyOnWriteArrayList<Category>) req.getSession().getAttribute(ConstantStorage.CURRENT_LANG_CATEGORIES);
-                int count = productDao.getCountOfRowsByCategory(categoryIdFromRequest);
-                if (count > ConstantStorage.ZERO) {
-                    List<Product> products = productDao.findAllByCategory(
-                            categoryIdFromRequest,
-                            ConstantStorage.COUNT_PRODUCTS_ON_PAGE,
-                            ConstantStorage.COUNT_PRODUCTS_ON_PAGE * (Math.abs(pageIdFromRequest) - 1));
-                    req.setAttribute(ConstantStorage.PRODUCTS, products);
-                    req.setAttribute(ConstantStorage.ID, categoryIdFromRequest);
-                    req.setAttribute(ConstantStorage.QUANTITY, count);
+            CopyOnWriteArrayList<Category> categories = (CopyOnWriteArrayList<Category>) req.getSession().getAttribute(ConstantStorage.CURRENT_LANG_CATEGORIES);
+            Optional<Category> category = categories.stream().filter(categ -> categ.getId() == categoryIdFromRequest).findFirst();
+            if (category.isPresent()) {
+                ProductDao productDao = new ProductDao();
+                try {
+                    int count = productDao.getCountOfRowsByCategory(categoryIdFromRequest);
+                    if (count > ConstantStorage.ZERO) {
+                        List<Product> products = productDao.findAllByCategory(
+                                categoryIdFromRequest,
+                                ConstantStorage.COUNT_PRODUCTS_ON_PAGE,
+                                ConstantStorage.COUNT_PRODUCTS_ON_PAGE * (Math.abs(pageIdFromRequest) - 1));
+                        req.setAttribute(ConstantStorage.PRODUCTS, products);
+                        req.setAttribute(ConstantStorage.ID, categoryIdFromRequest);
+                        req.setAttribute(ConstantStorage.QUANTITY, count);
                     }
-                    req.setAttribute(ConstantStorage.NAME, categories.stream().filter(category -> category.getId() == categoryIdFromRequest).findFirst().get().getName());
-            } catch (SQLException | ConnectionPoolException e) {
-                LOGGER.error("Failed to select category products");
+                    req.setAttribute(ConstantStorage.NAME, category.get().getName());
+                } catch (SQLException | ConnectionPoolException e) {
+                    LOGGER.error("Failed to select category products");
+                }
+            } else {
+
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
             resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);

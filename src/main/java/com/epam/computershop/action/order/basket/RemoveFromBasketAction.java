@@ -24,41 +24,48 @@ public class RemoveFromBasketAction extends Action {
         super(accessRoleId);
     }
 
+    private void removeProduct(User currentUser, long productIdFromRequest, HttpSession session){
+        if (currentUser != null) {
+            OrderProductDao orderProductDao = new OrderProductDao();
+            try {
+                orderProductDao.remove(currentUser.getId(), ConstantStorage.ORDER_STATUS_BASKET, productIdFromRequest);
+                LOGGER.debug("Product id - " + productIdFromRequest + " was removed from basket, by user -" + currentUser.getLogin());
+            } catch (SQLException | ConnectionPoolException e) {
+                LOGGER.error("Failed to remove product id - " + productIdFromRequest + ", from basket, by user - " + currentUser.getLogin());
+            }
+        } else {
+            Map<Long, Short> sessionBasket = (Map<Long, Short>) session.getAttribute(ConstantStorage.BASKET);
+            sessionBasket.remove(productIdFromRequest);
+        }
+    }
+
+    private void clearBasket(User currentUser, HttpSession session){
+        if (currentUser != null) {
+            OrderDao orderDao = new OrderDao();
+            try {
+                Order order = orderDao.findUserOrdersByStatus(currentUser.getId(), ConstantStorage.ORDER_STATUS_BASKET).get(ConstantStorage.ZERO);
+                if (order != null) {
+                    orderDao.remove(order);
+                    LOGGER.debug("Basket was cleared, by user -" + currentUser.getLogin());
+                }
+            } catch (SQLException | ConnectionPoolException e) {
+                LOGGER.error("Failed to remove basket, by user - " + currentUser.getLogin());
+            }
+        } else {
+            Map<Long, Short> sessionBasket = (Map<Long, Short>) session.getAttribute(ConstantStorage.BASKET);
+            sessionBasket.clear();
+        }
+    }
+
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         HttpSession session = req.getSession();
         User currentUser = (User) session.getAttribute(ConstantStorage.CURRENT_USER);
         long productIdFromRequest = NumberUtil.tryParseLong(req.getParameter(ConstantStorage.ID));
         if (productIdFromRequest != NumberUtil.INVALID_NUMBER) {
-            if (currentUser != null) {
-                OrderProductDao orderProductDao = new OrderProductDao();
-                try {
-                    orderProductDao.remove(currentUser.getId(), ConstantStorage.ORDER_STATUS_BASKET, productIdFromRequest);
-                    LOGGER.debug("Product id - " + productIdFromRequest + " was removed from basket, by user -" + currentUser.getLogin());
-                } catch (SQLException | ConnectionPoolException e) {
-                    LOGGER.error("Failed to remove product id - " + productIdFromRequest + ", from basket, by user - " + currentUser.getLogin());
-                }
-            } else {
-                Map<Long, Short> sessionBasket = (Map<Long, Short>) session.getAttribute(ConstantStorage.BASKET);
-                sessionBasket.remove(productIdFromRequest);
-            }
+            removeProduct(currentUser, productIdFromRequest, session);
         } else {
-            if (currentUser != null) {
-                OrderDao orderDao = new OrderDao();
-                try {
-                    Order order = orderDao.findUserOrdersByStatus(currentUser.getId(), ConstantStorage.ORDER_STATUS_BASKET).get(ConstantStorage.ZERO);
-                    if (order != null) {
-                        orderDao.remove(order);
-                        LOGGER.debug("Basket was cleared, by user -" + currentUser.getLogin());
-                    }
-                } catch (SQLException | ConnectionPoolException e) {
-                    LOGGER.error("Failed to remove basket, by user - " + currentUser.getLogin());
-                }
-            } else {
-                Map<Long, Short> sessionBasket = (Map<Long, Short>) session.getAttribute(ConstantStorage.BASKET);
-                sessionBasket.clear();
-            }
-
+            clearBasket(currentUser, session);
         }
         resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
         return URLUtil.getRefererURL(req);

@@ -1,8 +1,9 @@
 package com.epam.computershop.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class User implements Entity {
+public class User implements Entity, Serializable {
     private long id;
     private String email;
     private String login;

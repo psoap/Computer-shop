@@ -5,13 +5,17 @@ import java.io.IOException;
 
 public class EncodingFilter implements Filter {
     private static final String ENCODING_PARAM = "encoding";
-    private static String encoding = "utf-8";
+    private static String encoding;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         String enc = filterConfig.getInitParameter(ENCODING_PARAM);
-        if (enc != null) {
-            encoding = enc;
+        if (encoding == null) {
+            if (enc != null) {
+                encoding = enc;
+            } else {
+                encoding = "utf-8";
+            }
         }
     }
 

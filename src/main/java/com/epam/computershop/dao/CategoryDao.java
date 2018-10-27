@@ -20,10 +20,11 @@ public class CategoryDao implements Dao<Category> {
             insertPreparedStatement.setString(ConstantStorage.INDEX_1, entity.getName());
             insertPreparedStatement.setString(ConstantStorage.INDEX_3, entity.getLangCode());
             insertPreparedStatement.execute();
-            ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys();
-            if (keysResultSet.next()) {
-                short insertedCategoryId = keysResultSet.getShort(ConstantStorage.ID);
-                entity.setId(insertedCategoryId);
+            try(ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys()){
+                if (keysResultSet.next()) {
+                    short insertedCategoryId = keysResultSet.getShort(ConstantStorage.ID);
+                    entity.setId(insertedCategoryId);
+                }
             }
             return entity;
         } finally {

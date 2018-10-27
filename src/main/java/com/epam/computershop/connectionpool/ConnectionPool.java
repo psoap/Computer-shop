@@ -98,17 +98,15 @@ public class ConnectionPool {
                     }
                 }
             }
-        } catch (InterruptedException | SQLException ex) {
+        } catch (SQLException | InterruptedException ex) {
             LOGGER.error("Failed to get free connection");
         }
         throw new ConnectionPoolException();
     }
 
     public void returnConnection(Connection connection) {
-        if (freeConnections.size() < poolSize) {
-            if (busyConnections.remove(connection)) {
-                freeConnections.add(connection);
-            }
+        if (freeConnections.size() < poolSize && busyConnections.remove(connection)) {
+            freeConnections.add(connection);
         }
     }
 

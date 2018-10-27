@@ -36,34 +36,26 @@ public class ChangeDeliveryProfileAction extends Action {
         }
     }
 
-    private DeliveryProfile add(User currentUser, String firstName, String lastName, String patronymic,
-                                String address, String phone, List<String> messagesForJsp) throws SQLException, ConnectionPoolException {
+    private DeliveryProfile add(User currentUser, DeliveryProfile profile, List<String> messagesForJsp) throws SQLException, ConnectionPoolException {
         DeliveryProfileDao profileDao = new DeliveryProfileDao();
         DeliveryProfile newProfile = new DeliveryProfile();
-        newProfile.setUserId(currentUser.getId());
-        newProfile.setFirstName(firstName);
-        newProfile.setLastName(lastName);
-        newProfile.setPatronymic(patronymic);
-        newProfile.setAddressLocation(address);
-        newProfile.setPhoneNumber(phone);
-        profileDao.insert(newProfile);
+        profileDao.insert(profile);
         LOGGER.debug("Delivery profile id - " + newProfile.getId() + " was created, by user - " + currentUser.getLogin());
         messagesForJsp.add(ConstantStorage.GENERAL_SUCCESS);
         return newProfile;
     }
 
-    private DeliveryProfile edit(User currentUser, long profileId, String firstName, String lastName, String patronymic,
-                                 String address, String phone, List<String> messagesForJsp) throws SQLException, ConnectionPoolException {
+    private DeliveryProfile edit(User currentUser, DeliveryProfile profile, List<String> messagesForJsp) throws SQLException, ConnectionPoolException {
         DeliveryProfileDao profilesDao = new DeliveryProfileDao();
-        DeliveryProfile profile = profilesDao.findById(profileId);
-        if (profile != null && profile.getUserId() == currentUser.getId()) {
-            profile.setFirstName(firstName);
-            profile.setLastName(lastName);
-            profile.setPatronymic(patronymic);
-            profile.setAddressLocation(address);
-            profile.setPhoneNumber(phone);
-            profilesDao.update(profile);
-            LOGGER.debug("Delivery profile id - " + profileId + " was updated, by user - " + currentUser.getLogin());
+        DeliveryProfile existedProfile = profilesDao.findById(profile.getId());
+        if (existedProfile != null && existedProfile.getUserId() == currentUser.getId()) {
+            existedProfile.setFirstName(profile.getFirstName());
+            existedProfile.setLastName(profile.getLastName());
+            existedProfile.setPatronymic(profile.getPatronymic());
+            existedProfile.setAddressLocation(profile.getAddressLocation());
+            existedProfile.setPhoneNumber(profile.getPhoneNumber());
+            profilesDao.update(existedProfile);
+            LOGGER.debug("Delivery profile id - " + profile.getId() + " was updated, by user - " + currentUser.getLogin());
             messagesForJsp.add(ConstantStorage.GENERAL_SUCCESS);
         } else {
             messagesForJsp.add(ConstantStorage.GENERAL_WARN_BAD_DATA);
@@ -87,9 +79,17 @@ public class ChangeDeliveryProfileAction extends Action {
         validateForm(firstName, lastName, patronymic, address, phone, messagesForJsp);
 
         if (messagesForJsp.isEmpty()) {
+            DeliveryProfile buffDeliveryProfile = new DeliveryProfile();
+            buffDeliveryProfile.setFirstName(firstName);
+            buffDeliveryProfile.setLastName(lastName);
+            buffDeliveryProfile.setPatronymic(patronymic);
+            buffDeliveryProfile.setAddressLocation(address);
+            buffDeliveryProfile.setPhoneNumber(phone);
+
             if (profileIdFromRequest == NumberUtil.INVALID_NUMBER) {
                 try {
-                    add(currentUser, firstName, lastName, patronymic, address, phone, messagesForJsp);
+                    buffDeliveryProfile.setUserId(currentUser.getId());
+                    add(currentUser, buffDeliveryProfile, messagesForJsp);
                     resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
                     responseUrl = ((String) req.getServletContext().getAttribute(ConstantStorage.APPLICATION_URL_WITH_SERVLET_PATH))
                             .concat(ActionFactory.ACTION_DELIVPROF_CATALOG);
@@ -99,7 +99,7 @@ public class ChangeDeliveryProfileAction extends Action {
                 }
             } else {
                 try {
-                    edit(currentUser, profileIdFromRequest, firstName, lastName, patronymic, address, phone, messagesForJsp);
+                    edit(currentUser, buffDeliveryProfile, messagesForJsp);
                     resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
                     responseUrl = ((String) req.getServletContext().getAttribute(ConstantStorage.APPLICATION_URL_WITH_SERVLET_PATH))
                             .concat(ActionFactory.ACTION_DELIVPROF_CATALOG);

@@ -36,8 +36,7 @@ public final class SQLQueriesStorage {
     public static final String INSERT_USER = "INSERT INTO \"user\" (email, login, password, role_id, balance)\n" +
             "VALUES(?, ?, ?, ?, ?);";
     public static final String UPDATE_USER = "UPDATE \"user\"\n" +
-            "SET email = ?, password = ?, role_id = ?, balance = ?\n" +
-            "WHERE id = ?;";
+            "SET email = ?, password = ?, role_id = ?, balance = ?\nWHERE id = ?;";
     public static final String DELETE_USER = "DELETE FROM \"user\" WHERE id = ?;";
 
     //Delivery Profile Table
@@ -79,8 +78,7 @@ public final class SQLQueriesStorage {
     public static final String SELECT_PRODUCTS_BY_SEARCH_QUERY = "SELECT * FROM \"product\" WHERE LOWER(\"product\".name) LIKE LOWER(?);";
     public static final String SELECT_PRODUCT_BY_ID = "SELECT * FROM \"product\" WHERE id = ?;";
     public static final String UPDATE_PRODUCT = "UPDATE \"product\"\n" +
-            "SET name=?, short_description=?, description=?, price=?, category_id=?, image_url=?\n" +
-            "WHERE id=?;";
+            "SET name=?, short_description=?, description=?, price=?, category_id=?, image_url=?\nWHERE id=?;";
     public static final String SELECT_PRODUCTS_COUNT_BY_CATEGORY = "SELECT COUNT(id) FROM \"product\" WHERE category_id = ?;";
 
     //Order Table
@@ -91,8 +89,7 @@ public final class SQLQueriesStorage {
     public static final String SELECT_ORDERS_BY_STATUS_AND_USER_ID = "SELECT * FROM \"order\" WHERE user_id=? AND status_id=?;";
     public static final String SELECT_ORDERS_BY_STATUS = "SELECT * FROM \"order\" WHERE status_id=?;";
     public static final String UPDATE_ORDER = "UPDATE \"order\"\n" +
-            "SET delivery_profile_id=?, status_id=?, total_price=?, change_date=?\n" +
-            "WHERE id=?;";
+            "SET delivery_profile_id=?, status_id=?, total_price=?, change_date=?\nWHERE id=?;";
 
     //Order Product Table
     public static final String SELECT_ORDER_PRODUCT = "SELECT * FROM \"order_product\"\n" +
@@ -100,10 +97,13 @@ public final class SQLQueriesStorage {
             "WHERE \"order_product\".order_id=?";
     public static final String SELECT_ORDER_PRODUCTS_IDS = "SELECT \"order_product\".product_id FROM \"order_product\" WHERE order_id=?;";
     public static final String INSERT_ORDER_PRODUCT = "INSERT INTO \"order_product\" (order_id, product_id, quantity)\n" +
-            "SELECT \"order.id\", ?, ? FROM \"order\" WHERE user_id=? AND status_id=?" +
+            "SELECT \"order\".id, ?, ? FROM \"order\" WHERE user_id=? AND status_id=?" +
             "ON CONFLICT ON CONSTRAINT order_product_order_id_product_id_key DO UPDATE SET quantity=?;";
     public static final String UPDATE_ORDER_PRODUCT = "UPDATE \"order_product\"\n" +
             "SET quantity=?\n" +
             "WHERE order_id IN (SELECT id FROM \"order\" WHERE user_id=? AND status_id=?) AND product_id=?;";
     public static final String DELETE_ORDER_PRODUCT = "DELETE FROM \"order_product\" WHERE order_id IN (SELECT id FROM \"order\" WHERE user_id=? AND status_id=?) AND product_id=?;";
+
+    private SQLQueriesStorage() {
+    }
 }

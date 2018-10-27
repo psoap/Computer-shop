@@ -1,9 +1,10 @@
 package com.epam.computershop.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class Order implements Entity {
+public class Order implements Entity, Serializable {
     private long id;
     private long userId;
     private short statusId;

@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 public class NumberUtil {
     public static final short INVALID_NUMBER = -1;
 
+    private NumberUtil() {
+    }
+
     public static long tryParseLong(String number) {
         try {
             return Long.parseLong(number);

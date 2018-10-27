@@ -1,14 +1,27 @@
 package com.epam.computershop.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Category implements Entity, Cloneable {
+public class Category implements Entity, Serializable {
     private short id;
     private String name;
     private Short parentId;
     private String langCode;
-    private List<Category> children = new ArrayList<>();
+    private List<Category> children;
+
+    public Category() {
+        children = new ArrayList<>();
+    }
+
+    public Category(Category category) {
+        id = category.id;
+        name = category.name;
+        parentId = category.parentId;
+        langCode = category.langCode;
+        children = category.children;
+    }
 
     public short getId() {
         return id;
@@ -46,14 +59,8 @@ public class Category implements Entity, Cloneable {
         return children;
     }
 
-    @Override
-    public Category clone() {
-        Category category = new Category();
-        category.setName(name);
-        category.setLangCode(langCode);
-        category.setId(id);
-        category.setParentId(parentId);
-        return category;
+    public void setChildren(List<Category> children) {
+        this.children = children;
     }
 
 }

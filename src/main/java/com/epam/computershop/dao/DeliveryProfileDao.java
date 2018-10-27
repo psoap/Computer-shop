@@ -22,9 +22,10 @@ public class DeliveryProfileDao implements Dao<DeliveryProfile> {
             insertPreparedStatement.setString(ConstantStorage.INDEX_5, entity.getAddressLocation());
             insertPreparedStatement.setString(ConstantStorage.INDEX_6, entity.getPhoneNumber());
             insertPreparedStatement.execute();
-            ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys();
-            if (keysResultSet.next()) {
-                entity.setId(keysResultSet.getLong(SQLQueriesStorage.COLUMN_ID));
+            try(ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys()){
+                if (keysResultSet.next()) {
+                    entity.setId(keysResultSet.getLong(SQLQueriesStorage.COLUMN_ID));
+                }
             }
             return entity;
         } finally {

@@ -16,4 +16,7 @@ public final class ValidatorSettingsStorage {
     public static final Pattern PRODUCT_NAME_PATTERN = Pattern.compile("^[\\wА-Яа-я,\\s.=-]{1,127}");
 
     public static final Pattern LANG_CODE_NAME_PATTERN = Pattern.compile("^[\\w]{1,16}");
+
+    private ValidatorSettingsStorage() {
+    }
 }
