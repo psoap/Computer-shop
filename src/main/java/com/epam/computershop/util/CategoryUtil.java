@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class CategoryUtil {
-    private CategoryUtil() {
-    }
-
     public static void fillChildrenCategories(Map<Locale, CopyOnWriteArrayList<Category>> langsCategories){
         for (CopyOnWriteArrayList<Category> lcats:langsCategories.values()){
             lcats.forEach(category -> {
                 if(category.getParentId()!=null){
                     lcats.stream()
                             .filter(parentCategory -> parentCategory.getId()==category.getParentId())
-                            .findFirst().ifPresent(cat -> cat.getChildren().add(category));
+                            .findFirst().ifPresent(cat -> {
+                                cat.getChildren().add(category);
+//                                lcats.remove(category);
+                            });
                 }
             });
         }
