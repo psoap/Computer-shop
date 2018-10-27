@@ -13,10 +13,7 @@ public final class CategoryUtil {
                 if(category.getParentId()!=null){
                     lcats.stream()
                             .filter(parentCategory -> parentCategory.getId()==category.getParentId())
-                            .findFirst().ifPresent(cat -> {
-                                cat.getChildren().add(category);
-//                                lcats.remove(category);
-                            });
+                            .findFirst().ifPresent(cat -> cat.getChildren().add(category));
                 }
             });
         }
@@ -28,5 +25,8 @@ public final class CategoryUtil {
             categories.clear();
             categories.addAll(newLangsCategories.get(langCategories.getKey()));
         }
+    }
+
+    private CategoryUtil() {
     }
 }
