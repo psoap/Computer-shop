@@ -52,8 +52,11 @@ public class ShowProductsCatalogAction extends Action {
                     LOGGER.error("Failed to select category products");
                 }
             } else {
-
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                try {
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                } catch (IOException e) {
+                    LOGGER.error("Failed to send not found response");
+                }
             }
         } else {
             resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
