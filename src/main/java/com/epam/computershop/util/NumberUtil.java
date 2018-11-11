@@ -26,7 +26,7 @@ public class NumberUtil {
 
     public static BigDecimal tryParseBigDecimal(String number) {
         try {
-            return new BigDecimal(number);
+            return new BigDecimal(number).setScale(2, BigDecimal.ROUND_DOWN);
         } catch (NumberFormatException ex) {
             return null;
         }

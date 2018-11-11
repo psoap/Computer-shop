@@ -6,10 +6,10 @@
     <a href="<c:url value="/do/catalog_user"/>">
         <li><fmt:message key="txt.users" bundle="${langBundle}" /></li>
     </a>
-    <a href="<c:url value="/do/catalog_users_orders?id=2"/>">
+    <a href="<c:url value="/do/catalog_users_orders?status=PAID"/>">
         <li><fmt:message key="txt.pending_orders" bundle="${langBundle}" /></li>
     </a>
-    <a href="<c:url value="/do/manage_langs"/>">
-        <li><fmt:message key="txt.manage_langs" bundle="${langBundle}" /></li>
+    <a href="<c:url value="/do/manage_lang"/>">
+        <li><fmt:message key="txt.manage_lang" bundle="${langBundle}" /></li>
     </a>
 </ul>

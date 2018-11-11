@@ -8,7 +8,7 @@ import com.epam.computershop.action.deliveryprofile.RemoveDeliveryProfileAction;
 import com.epam.computershop.action.deliveryprofile.ShowChangePageDeliveryProfileAction;
 import com.epam.computershop.action.deliveryprofile.ShowDeliveryProfilesCatalogAction;
 import com.epam.computershop.action.lang.AddLangAction;
-import com.epam.computershop.action.lang.ShowManageLangsPageAction;
+import com.epam.computershop.action.lang.ShowManageLangPageAction;
 import com.epam.computershop.action.lang.SwapLangAction;
 import com.epam.computershop.action.order.RemoveOrderActon;
 import com.epam.computershop.action.order.ShowOrderAction;
@@ -20,15 +20,14 @@ import com.epam.computershop.action.user.*;
 import com.epam.computershop.action.user.admin.SwapUserRoleAction;
 import com.epam.computershop.action.user.admin.UsersCatalogAction;
 import com.epam.computershop.action.user.admin.UsersOrdersCatalogAction;
-import com.epam.computershop.util.ConstantStorage;
+import com.epam.computershop.enums.UserRole;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ActionFactory {
-    private volatile static ActionFactory currentActionFactory;
-    private static final Map<String, Action> actionsUries = new HashMap<>();
-
     public static final String ACTION_USER_LOGIN = "/auth";
     public static final String ACTION_USER_REGISTRATION = "/reg";
     public static final String ACTION_USER_LOGOUT = "/logout";
@@ -41,10 +40,10 @@ public class ActionFactory {
     public static final String ACTION_USER_SHOW_REGISTRATION_PAGE = "/registration";
     public static final String ACTION_USER_SHOW_EDIT_BALANCE_PAGE = "/edit_page_balance";
 
-    public static final String ACTION_DELIVPROF_CHANGE = "/change_delivprof";
-    public static final String ACTION_DELIVPROF_REMOVE = "/remove_delivprof";
-    public static final String ACTION_DELIVPROF_CATALOG = "/catalog_delivprof";
-    public static final String ACTION_DELIVPROF_SHOW_EDIT_PAGE = "/edit_page_delivprof";
+    public static final String ACTION_DELIVERY_PROFILE_CHANGE = "/change_delivery_profile";
+    public static final String ACTION_DELIVERY_PROFILE_REMOVE = "/remove_delivery_profile";
+    public static final String ACTION_DELIVERY_PROFILE_CATALOG = "/catalog_delivery_profile";
+    public static final String ACTION_DELIVERY_PROFILE_SHOW_EDIT_PAGE = "/edit_page_delivery_profile";
 
     public static final String ACTION_CATEGORY_CHANGE = "/change_category";
     public static final String ACTION_CATEGORY_REMOVE = "/remove_category";
@@ -71,91 +70,88 @@ public class ActionFactory {
     public static final String ACTION_BASKET_SHOW_CHECKOUT_PAGE = "/page_checkout";
 
     public static final String ACTION_LANG_ADD = "/add_lang";
-    public static final String ACTION_LANG_SHOW_MANAGE_PAGE = "/manage_langs";
+    public static final String ACTION_LANG_SHOW_MANAGE_PAGE = "/manage_lang";
     public static final String ACTION_LANG_SWAP = "/swap_lang";
+
+    private static final Map<String, Action> uriAction = new HashMap<>();
+    private volatile static ActionFactory currentActionFactory;
 
     private ActionFactory() {
         //User account actions
-        actionsUries.put(ACTION_USER_LOGIN, new LoginAction(ConstantStorage.ROLE_ID_GUEST_ONLY));
-        actionsUries.put(ACTION_USER_REGISTRATION, new RegistrationAction(ConstantStorage.ROLE_ID_GUEST_ONLY));
-        actionsUries.put(ACTION_USER_LOGOUT, new LogoutAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_USER_EDIT_PERSONAL, new EditPersonalAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_USER_EDIT_BALANCE, new EditBalanceAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_USER_SWAP_ROLE, new SwapUserRoleAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_USER_CATALOG, new UsersCatalogAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_USER_SHOW_LOGIN_PAGE, new ShowLoginPageAction(ConstantStorage.ROLE_ID_GUEST_ONLY));
-        actionsUries.put(ACTION_USER_SHOW_REGISTRATION_PAGE, new ShowRegistrationPageAction(ConstantStorage.ROLE_ID_GUEST_ONLY));
-        actionsUries.put(ACTION_USER_SHOW_PERSONAL_PAGE, new ShowPersonalPageAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_USER_SHOW_EDIT_BALANCE_PAGE, new ShowEditBalancePageAction(ConstantStorage.ROLE_ID_USER));
+        uriAction.put(ACTION_USER_LOGIN, new LoginAction(UserRole.GUEST_ONLY));
+        uriAction.put(ACTION_USER_REGISTRATION, new RegistrationAction(UserRole.GUEST_ONLY));
+        uriAction.put(ACTION_USER_LOGOUT, new LogoutAction(UserRole.USER));
+        uriAction.put(ACTION_USER_EDIT_PERSONAL, new EditPersonalAction(UserRole.USER));
+        uriAction.put(ACTION_USER_EDIT_BALANCE, new EditBalanceAction(UserRole.USER));
+        uriAction.put(ACTION_USER_SWAP_ROLE, new SwapUserRoleAction(UserRole.ADMIN));
+        uriAction.put(ACTION_USER_CATALOG, new UsersCatalogAction(UserRole.ADMIN));
+        uriAction.put(ACTION_USER_SHOW_LOGIN_PAGE, new ShowLoginPageAction(UserRole.GUEST_ONLY));
+        uriAction.put(ACTION_USER_SHOW_REGISTRATION_PAGE, new ShowRegistrationPageAction(UserRole.GUEST_ONLY));
+        uriAction.put(ACTION_USER_SHOW_PERSONAL_PAGE, new ShowPersonalPageAction(UserRole.USER));
+        uriAction.put(ACTION_USER_SHOW_EDIT_BALANCE_PAGE, new ShowEditBalancePageAction(UserRole.USER));
 
         //Delivery profile actions
-        actionsUries.put(ACTION_DELIVPROF_CATALOG, new ShowDeliveryProfilesCatalogAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_DELIVPROF_CHANGE, new ChangeDeliveryProfileAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_DELIVPROF_REMOVE, new RemoveDeliveryProfileAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_DELIVPROF_SHOW_EDIT_PAGE, new ShowChangePageDeliveryProfileAction(ConstantStorage.ROLE_ID_USER));
+        uriAction.put(ACTION_DELIVERY_PROFILE_CATALOG, new ShowDeliveryProfilesCatalogAction(UserRole.USER));
+        uriAction.put(ACTION_DELIVERY_PROFILE_CHANGE, new ChangeDeliveryProfileAction(UserRole.USER));
+        uriAction.put(ACTION_DELIVERY_PROFILE_REMOVE, new RemoveDeliveryProfileAction(UserRole.USER));
+        uriAction.put(ACTION_DELIVERY_PROFILE_SHOW_EDIT_PAGE, new ShowChangePageDeliveryProfileAction(UserRole.USER));
 
         //Category actions
-        actionsUries.put(ACTION_CATEGORY_CHANGE, new ChangeCategoryAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_CATEGORY_REMOVE, new RemoveCategoryAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_CATEGORY_SHOW_MANAGE_PAGE, new ShowManageCategoriesPageAction(ConstantStorage.ROLE_ID_ADMIN));
+        uriAction.put(ACTION_CATEGORY_CHANGE, new ChangeCategoryAction(UserRole.ADMIN));
+        uriAction.put(ACTION_CATEGORY_REMOVE, new RemoveCategoryAction(UserRole.ADMIN));
+        uriAction.put(ACTION_CATEGORY_SHOW_MANAGE_PAGE, new ShowManageCategoriesPageAction(UserRole.ADMIN));
 
         //Product actions
-        actionsUries.put(ACTION_PRODUCT_CATALOG, new ShowProductsCatalogAction(ConstantStorage.ROLE_ID_GUEST));
-        actionsUries.put(ACTION_PRODUCT_SEARCH, new SearchProductAction(ConstantStorage.ROLE_ID_GUEST));
-        actionsUries.put(ACTION_PRODUCT_CHANGE, new ChangeProductAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_PRODUCT_SHOW_EDIT_PAGE, new ShowChangePageProductAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_PRODUCT_REMOVE, new RemoveProductAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_PRODUCT_SHOW, new ShowProductAction(ConstantStorage.ROLE_ID_GUEST));
+        uriAction.put(ACTION_PRODUCT_CATALOG, new ShowProductsCatalogAction(UserRole.GUEST));
+        uriAction.put(ACTION_PRODUCT_SEARCH, new SearchProductAction(UserRole.GUEST));
+        uriAction.put(ACTION_PRODUCT_CHANGE, new ChangeProductAction(UserRole.ADMIN));
+        uriAction.put(ACTION_PRODUCT_SHOW_EDIT_PAGE, new ShowChangePageProductAction(UserRole.ADMIN));
+        uriAction.put(ACTION_PRODUCT_REMOVE, new RemoveProductAction(UserRole.ADMIN));
+        uriAction.put(ACTION_PRODUCT_SHOW, new ShowProductAction(UserRole.GUEST));
 
         //Order actions
-        actionsUries.put(ACTION_ORDER_CATALOG, new ShowOrdersCatalogAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_ORDERS_USERS_CATALOG, new UsersOrdersCatalogAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_ORDER_REMOVE, new RemoveOrderActon(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_ORDER_SWAP_STATUS, new SwapOrderStatusAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_ORDER_SHOW, new ShowOrderAction(ConstantStorage.ROLE_ID_USER));
+        uriAction.put(ACTION_ORDER_CATALOG, new ShowOrdersCatalogAction(UserRole.USER));
+        uriAction.put(ACTION_ORDERS_USERS_CATALOG, new UsersOrdersCatalogAction(UserRole.ADMIN));
+        uriAction.put(ACTION_ORDER_REMOVE, new RemoveOrderActon(UserRole.USER));
+        uriAction.put(ACTION_ORDER_SWAP_STATUS, new SwapOrderStatusAction(UserRole.ADMIN));
+        uriAction.put(ACTION_ORDER_SHOW, new ShowOrderAction(UserRole.USER));
         //Basket actions
-        actionsUries.put(ACTION_BASKET_SHOW, new ShowBasketAction(ConstantStorage.ROLE_ID_GUEST));
-        actionsUries.put(ACTION_BASKET_ADD_PRODUCT, new AddToBasketAction(ConstantStorage.ROLE_ID_GUEST));
-        actionsUries.put(ACTION_BASKET_EDIT_QUANTITY, new UpdateQuantityAction(ConstantStorage.ROLE_ID_GUEST));
-        actionsUries.put(ACTION_BASKET_REMOVE_PRODUCT, new RemoveFromBasketAction(ConstantStorage.ROLE_ID_GUEST));
-        actionsUries.put(ACTION_BASKET_CHECKOUT, new CheckoutAction(ConstantStorage.ROLE_ID_USER));
-        actionsUries.put(ACTION_BASKET_SHOW_CHECKOUT_PAGE, new ShowCheckoutPageAction(ConstantStorage.ROLE_ID_GUEST));
+        uriAction.put(ACTION_BASKET_SHOW, new ShowBasketAction(UserRole.GUEST));
+        uriAction.put(ACTION_BASKET_ADD_PRODUCT, new AddToBasketAction(UserRole.GUEST));
+        uriAction.put(ACTION_BASKET_EDIT_QUANTITY, new UpdateQuantityAction(UserRole.GUEST));
+        uriAction.put(ACTION_BASKET_REMOVE_PRODUCT, new RemoveFromBasketAction(UserRole.GUEST));
+        uriAction.put(ACTION_BASKET_CHECKOUT, new CheckoutAction(UserRole.USER));
+        uriAction.put(ACTION_BASKET_SHOW_CHECKOUT_PAGE, new ShowCheckoutPageAction(UserRole.GUEST));
 
         //Lang actions
-        actionsUries.put(ACTION_LANG_SWAP, new SwapLangAction(ConstantStorage.ROLE_ID_GUEST));
-        actionsUries.put(ACTION_LANG_ADD, new AddLangAction(ConstantStorage.ROLE_ID_ADMIN));
-        actionsUries.put(ACTION_LANG_SHOW_MANAGE_PAGE, new ShowManageLangsPageAction(ConstantStorage.ROLE_ID_ADMIN));
+        uriAction.put(ACTION_LANG_SWAP, new SwapLangAction(UserRole.GUEST));
+        uriAction.put(ACTION_LANG_ADD, new AddLangAction(UserRole.ADMIN));
+        uriAction.put(ACTION_LANG_SHOW_MANAGE_PAGE, new ShowManageLangPageAction(UserRole.ADMIN));
     }
 
     public static ActionFactory getInstance() {
         ActionFactory actionFactory = currentActionFactory;
         if (actionFactory == null) {
-            synchronized (ActionFactory.class) {
-                actionFactory = currentActionFactory;
-                if (actionFactory == null) {
-                    actionFactory = currentActionFactory = new ActionFactory();
-                }
+            Lock lock = new ReentrantLock();
+            lock.lock();
+            actionFactory = currentActionFactory;
+            if (actionFactory == null) {
+                actionFactory = currentActionFactory = new ActionFactory();
             }
+            lock.unlock();
         }
         return actionFactory;
     }
 
     public Action getAction(String actionUri) {
-        Action action = actionsUries.get(actionUri);
+        Action action = uriAction.get(actionUri);
         if (action == null) {
-            action = new ShowIndexPageAction(ConstantStorage.ROLE_ID_GUEST);
+            action = new NotFoundAction(UserRole.GUEST);
         }
         return action;
     }
 
-    public Short getActionAccessRoleId(String actionUri) {
-        Action action = actionsUries.get(actionUri);
-        short accessRoleId;
-        if (action != null) {
-            accessRoleId = actionsUries.get(actionUri).getAccessRoleId();
-        } else {
-            accessRoleId = ConstantStorage.ROLE_ID_ERROR;
-        }
-        return accessRoleId;
+    public UserRole getActionAccessRole(String actionUri) {
+        return getAction(actionUri).getAccessRole();
     }
 }

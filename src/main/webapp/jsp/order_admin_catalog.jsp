@@ -3,18 +3,18 @@
 <t:wrapper title="${title}">
     <jsp:body>
         <div class="workarea-left">
-            <%@include file="/WEB-INF/jspf/profile_menu.jspf" %>
+            <%@include file="/WEB-INF/jspf/admin_menu.jspf" %>
         </div>
         <div class="workarea-right">
             <form action="<c:url value="/do/catalog_users_orders"/>">
-                <select name="id">
-                    <option value="2">
+                <select name="status">
+                    <option value="PAID">
                         <fmt:message key="txt.order_status.pending" bundle="${langBundle}"/>
                     </option>
-                    <option value="3">
+                    <option value="SHIPPING">
                         <fmt:message key="txt.order_status.shipping" bundle="${langBundle}"/>
                     </option>
-                    <option value="4">
+                    <option value="DELIVERED">
                         <fmt:message key="txt.order_status.delivered" bundle="${langBundle}"/>
                     </option>
                 </select>
@@ -24,7 +24,7 @@
                 <c:when test="${not empty requestScope.orders}">
                     <table class="data-list">
                         <c:forEach var="order" items="${requestScope.orders}">
-                            <c:if test="${order.statusId ne constants.ORDER_STATUS_BASKET}">
+                            <c:if test="${order.status ne 'BASKET'}">
                                 <tr>
                                     <c:url var="url" value="/do/order">
                                         <c:param name="id" value="${order.id}"/>
@@ -35,15 +35,15 @@
                                     <td>
                                         <form action="<c:url value="/do/swap_order_status"/>">
                                             <input type="hidden" name="id" value="${order.id}">
-                                            <select name="status_id">
-                                                <option value="${constants.ORDER_STATUS_PAID}">
+                                            <select name="status">
+                                                <option value="PAID">
                                                     <fmt:message key="txt.order_status.pending" bundle="${langBundle}"/>
                                                 </option>
-                                                <option value="${constants.ORDER_STATUS_SHIPPING}">
+                                                <option value="SHIPPING">
                                                     <fmt:message key="txt.order_status.shipping"
                                                                  bundle="${langBundle}"/>
                                                 </option>
-                                                <option value="${constants.ORDER_STATUS_DELIVERED}">
+                                                <option value="DELIVERED">
                                                     <fmt:message key="txt.order_status.delivered"
                                                                  bundle="${langBundle}"/>
                                                 </option>

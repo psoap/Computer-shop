@@ -1,14 +1,14 @@
 package com.epam.computershop.action.category;
 
 import com.epam.computershop.action.Action;
+import com.epam.computershop.enums.UserRole;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ShowManageCategoriesPageAction extends Action {
-
-    public ShowManageCategoriesPageAction(short accessRoleId) {
-        super(accessRoleId);
+    public ShowManageCategoriesPageAction(UserRole accessRole) {
+        super(accessRole);
     }
 
     @Override

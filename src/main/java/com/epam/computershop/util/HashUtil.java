@@ -6,13 +6,11 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.xml.bind.DatatypeConverter;
 
-import static javax.xml.bind.DatatypeConverter.printHexBinary;
-
 public class HashUtil {
     private HashUtil() {
     }
 
-    public static String getSHA1(String string) throws NoSuchAlgorithmException {
+    public static String getSha1(String string) throws NoSuchAlgorithmException {
         MessageDigest sha = MessageDigest.getInstance("SHA-1");
         sha.update(string.getBytes());
         byte[] digest = sha.digest();
@@ -21,9 +19,9 @@ public class HashUtil {
 
     public static String getRandomMd5() throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        ByteBuffer buff = ByteBuffer.allocate(Long.BYTES);
-        buff.putLong(System.currentTimeMillis());
-        md.update(buff.array());
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(System.currentTimeMillis());
+        md.update(buffer.array());
         byte[] digest = md.digest();
         return DatatypeConverter.printHexBinary(digest);
     }

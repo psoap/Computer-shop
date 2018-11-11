@@ -6,9 +6,9 @@ import com.epam.computershop.dao.OrderProductDao;
 import com.epam.computershop.entity.Order;
 import com.epam.computershop.entity.User;
 import com.epam.computershop.exception.ConnectionPoolException;
-import com.epam.computershop.util.ConstantStorage;
-import com.epam.computershop.util.NumberUtil;
+import com.epam.computershop.enums.OrderStatus;
 import com.epam.computershop.util.URLUtil;
+import com.epam.computershop.enums.UserRole;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,47 +19,59 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.epam.computershop.util.ConstantStorage.*;
+import static com.epam.computershop.util.NumberUtil.*;
+
 public class AddToBasketAction extends Action {
     private static final Logger LOGGER = Logger.getLogger(AddToBasketAction.class);
 
-    public AddToBasketAction(short accessRoleId) {
-        super(accessRoleId);
+    public AddToBasketAction(UserRole accessRole) {
+        super(accessRole);
     }
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         HttpSession session = req.getSession();
-        User currentUser = (User) session.getAttribute(ConstantStorage.CURRENT_USER);
-        long productIdFromRequest = NumberUtil.tryParseLong(req.getParameter(ConstantStorage.ID));
-        OrderProductDao orderProductDao = new OrderProductDao();
-        if (productIdFromRequest != NumberUtil.INVALID_NUMBER) {
+        User currentUser = (User) session.getAttribute(CURRENT_USER);
+        long productIdFromRequest = tryParseLong(req.getParameter(ID));
+        if (productIdFromRequest != INVALID_NUMBER) {
             if (currentUser != null) {
-                try {
-                    //Insert return true if basket not exist in Order table, then it creates new basket and insert
-                    if (orderProductDao.insert(currentUser.getId(), ConstantStorage.ORDER_STATUS_BASKET, productIdFromRequest, ConstantStorage.ONE)) {
-                        OrderDao orderDao = new OrderDao();
-                        Order newBasket = new Order();
-                        newBasket.setUserId(currentUser.getId());
-                        newBasket.setStatusId(ConstantStorage.ORDER_STATUS_BASKET);
-                        newBasket.setTotalPrice(ConstantStorage.ZERO_BALANCE);
-                        newBasket.setChangeDate(new Timestamp(System.currentTimeMillis()));
-                        orderDao.insert(newBasket);
-                        orderProductDao.insert(currentUser.getId(), ConstantStorage.ORDER_STATUS_BASKET, productIdFromRequest, ConstantStorage.ONE);
-                    }
-                    LOGGER.debug("Product id - " + productIdFromRequest + " was added to basket, by user -" + currentUser.getLogin());
-                } catch (SQLException | ConnectionPoolException e) {
-                    LOGGER.error("Failed to insert product to basket, by user - " + currentUser.getLogin());
-                }
+                addToUserBasket(currentUser, productIdFromRequest);
             } else {
-                Map<Long, Short> sessionBasket = (Map<Long, Short>) session.getAttribute(ConstantStorage.BASKET);
-                if (sessionBasket == null) {
-                    sessionBasket = new HashMap<>();
-                    session.setAttribute(ConstantStorage.BASKET, sessionBasket);
-                }
-                sessionBasket.put(productIdFromRequest, ConstantStorage.ONE);
+                addToGuestBasket(session, productIdFromRequest);
             }
         }
         resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
         return URLUtil.getRefererURL(req);
+    }
+
+    private void addToUserBasket(User currentUser, long productIdFromRequest){
+        OrderProductDao orderProductDao = new OrderProductDao();
+        try {
+            //Insert return true if basket not exist in Order table, then it creates new basket and insert
+            if (orderProductDao.insert(currentUser.getId(), OrderStatus.BASKET, productIdFromRequest, ONE)) {
+                OrderDao orderDao = new OrderDao();
+                Order newBasket = new Order();
+                newBasket.setUserId(currentUser.getId());
+                newBasket.setStatus(OrderStatus.BASKET);
+                newBasket.setTotalPrice(ZERO_BALANCE);
+                newBasket.setChangeDate(new Timestamp(System.currentTimeMillis()));
+                orderDao.insert(newBasket);
+                orderProductDao.insert(currentUser.getId(), OrderStatus.BASKET, productIdFromRequest, ONE);
+            }
+            LOGGER.debug("Product id - " + productIdFromRequest + " was added to basket, by user -"
+                    + currentUser.getLogin());
+        } catch (SQLException | ConnectionPoolException e) {
+            LOGGER.error("Failed to insert product to basket, by user - " + currentUser.getLogin(), e);
+        }
+    }
+
+    private void addToGuestBasket(HttpSession session, long productIdFromRequest){
+        Map<Long, Short> sessionBasket = (Map<Long, Short>) session.getAttribute(BASKET);
+        if (sessionBasket == null) {
+            sessionBasket = new HashMap<>();
+            session.setAttribute(BASKET, sessionBasket);
+        }
+        sessionBasket.put(productIdFromRequest, ONE);
     }
 }

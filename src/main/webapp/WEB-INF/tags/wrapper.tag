@@ -1,12 +1,10 @@
 <%@tag pageEncoding="UTF-8" %>
+<%@attribute name="title" type="java.lang.String" required="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="un" uri="http://jakarta.apache.org/taglibs/unstandard-1.0" %>
 <%@ taglib prefix="tg" uri="http://epam.com/myTld/locale" %>
-<%@attribute name="title" type="java.lang.String" required="true" %>
-<fmt:setLocale value="${sessionScope.current_lang}"/>
+<fmt:setLocale value="${sessionScope.current_locale}"/>
 <fmt:setBundle basename="lang.lang" var="langBundle"/>
-<un:useConstants className="com.epam.computershop.util.ConstantStorage" var="constants"/>
 
 <!DOCTYPE html>
 <html>
@@ -37,7 +35,7 @@
                                     <span><fmt:message key="txt.my_account" bundle="${langBundle}"/>
                                         (${sessionScope.current_user.login})</span>
                                 </a>
-                                <c:if test="${sessionScope.current_user.roleId eq constants.ROLE_ID_ADMIN}">
+                                <c:if test="${sessionScope.current_user.role eq 'ADMIN'}">
                                     <a class="top-button-container" href="<c:url value="/do/manage_categories"/>">
                                         <span><img src="<c:url value="/resources/images/btn-set.png"/>"/></span>
                                         <span><fmt:message key="txt.admin_panel" bundle="${langBundle}"/></span>
@@ -63,9 +61,9 @@
                     <div class="fnl-header-mini-bar-left">
                         <form id="lang-form" action="<c:url value="/do/swap_lang"/>">
                             <select name="lang_code" onchange="changeLang()">
-                                <c:forEach var="lang" items="${applicationScope.all_langs}">
+                                <c:forEach var="lang" items="${applicationScope.all_locales}">
                                     <option value="${lang.language}"
-                                            <c:if test="${sessionScope.current_lang eq lang}">selected="selected"</c:if>>
+                                            <c:if test="${sessionScope.current_locale eq lang}">selected="selected"</c:if>>
                                         <c:out value="${tg:getDisplayName(lang)}"/>
                                     </option>
                                 </c:forEach>
@@ -129,6 +127,5 @@
         </div>
     </div>
 </footer>
-</div>
 </body>
 </html>

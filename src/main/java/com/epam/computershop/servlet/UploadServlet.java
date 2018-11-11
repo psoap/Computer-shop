@@ -1,6 +1,5 @@
 package com.epam.computershop.servlet;
 
-import com.epam.computershop.util.ConstantStorage;
 import com.epam.computershop.util.HashUtil;
 import org.apache.log4j.Logger;
 
@@ -10,22 +9,25 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import static com.epam.computershop.util.ConstantStorage.*;
+
 public class UploadServlet extends HttpServlet {
+    private static final long serialVersionUID = System.currentTimeMillis();
     private static final Logger LOGGER = Logger.getLogger(UploadServlet.class);
     private static final String URI_SEPARATOR = "/";
     private static final int FILENAME_LENGTH = 7;
-    private static String uploadFilePath;
-    private static String uploadPath;
+    private String uploadsFolderPath;
+    private String uploadsFolderName;
 
     @Override
-    public void init() throws ServletException {
-        String applicationPath = getServletContext().getRealPath(ConstantStorage.EMPTY_STRING);
-        uploadPath = getServletContext().getInitParameter("uploadsFolder");
-        if(uploadPath==null){
-            uploadPath = "uploads";
+    public void init() {
+        String applicationPath = getServletContext().getRealPath(EMPTY_STRING);
+        uploadsFolderName = getServletContext().getInitParameter("uploadsFolder");
+        if (uploadsFolderName == null) {
+            uploadsFolderName = "uploads";
         }
-        uploadFilePath = applicationPath + File.separator + uploadPath;
-        File uploadFolder = new File(uploadFilePath);
+        uploadsFolderPath = applicationPath + File.separator + uploadsFolderName;
+        File uploadFolder = new File(uploadsFolderPath);
         if (!uploadFolder.exists()) {
             uploadFolder.mkdirs();
         }
@@ -34,17 +36,19 @@ public class UploadServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         for (Part part : req.getParts()) {
-            if (part != null && part.getSize() > ConstantStorage.ZERO) {
+            if ((part != null) && (part.getSize() > ZERO)) {
                 HttpSession session = req.getSession();
-                session.removeAttribute(ConstantStorage.FILE_URL);
-                String filenameExtension = part.getSubmittedFileName().substring(part.getSubmittedFileName().lastIndexOf('.'));
+                session.removeAttribute(FILE_URL);
+                String fileNameExtension = part.getSubmittedFileName()
+                        .substring(part.getSubmittedFileName().lastIndexOf('.'));
                 try {
-                    String fileNameWithoutPath = HashUtil.getRandomMd5().substring(ConstantStorage.ZERO, FILENAME_LENGTH) + filenameExtension;
-                    part.write(uploadFilePath + File.separator + fileNameWithoutPath);
-                    String fileUrl = URI_SEPARATOR + uploadPath + URI_SEPARATOR + fileNameWithoutPath;
-                    req.getSession().setAttribute(ConstantStorage.FILE_URL, fileUrl);
+                    String fileNameWithoutPath = HashUtil.getRandomMd5()
+                            .substring(ZERO, FILENAME_LENGTH) + fileNameExtension;
+                    part.write(uploadsFolderPath + File.separator + fileNameWithoutPath);
+                    String fileUrl = URI_SEPARATOR + uploadsFolderName + URI_SEPARATOR + fileNameWithoutPath;
+                    req.getSession().setAttribute(FILE_URL, fileUrl);
                 } catch (NoSuchAlgorithmException e) {
-                    LOGGER.error("Failed to get random md5 while upload file");
+                    LOGGER.error("Failed to get random md5 while upload file.", e);
                 }
             }
         }

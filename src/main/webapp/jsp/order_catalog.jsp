@@ -11,11 +11,11 @@
                     <tr>
                         <td><fmt:message key="txt.id" bundle="${langBundle}"/></td>
                         <td><fmt:message key="txt.order_status" bundle="${langBundle}"/></td>
-                        <td><fmt:message key="txt.delivprof" bundle="${langBundle}"/></td>
+                        <td><fmt:message key="txt.delivery_profile" bundle="${langBundle}"/></td>
                         <td><fmt:message key="txt.order_cost" bundle="${langBundle}"/></td>
                     </tr>
                     <c:forEach var="order" items="${requestScope.orders}">
-                        <c:if test="${order.statusId ne constants.ORDER_STATUS_BASKET}">
+                        <c:if test="${order.status ne 'BASKET'}">
                             <tr>
                                 <c:url var="url" value="/do/order">
                                     <c:param name="id" value="${order.id}"/>
@@ -23,13 +23,13 @@
                                 <td><a href="${url}"><c:out value="#${order.id}"/></a></td>
                                 <td>
                                     <c:choose>
-                                        <c:when test="${order.statusId eq constants.ORDER_STATUS_PAID}">
+                                        <c:when test="${order.status eq 'PAID'}">
                                             <fmt:message key="txt.order_status.pending" bundle="${langBundle}"/>
                                         </c:when>
-                                        <c:when test="${order.statusId eq constants.ORDER_STATUS_SHIPPING}">
+                                        <c:when test="${order.status eq 'SHIPPING'}">
                                             <fmt:message key="txt.order_status.shipping" bundle="${langBundle}"/>
                                         </c:when>
-                                        <c:when test="${order.statusId eq constants.ORDER_STATUS_DELIVERED}">
+                                        <c:when test="${order.status eq 'DELIVERED'}">
                                             <fmt:message key="txt.order_status.delivered" bundle="${langBundle}"/>
                                         </c:when>
                                     </c:choose>

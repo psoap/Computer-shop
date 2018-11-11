@@ -6,7 +6,6 @@ import com.epam.computershop.dao.LangDao;
 import com.epam.computershop.entity.Category;
 import com.epam.computershop.exception.ConnectionPoolException;
 import com.epam.computershop.util.CategoryUtil;
-import com.epam.computershop.util.ConstantStorage;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletContext;
@@ -18,35 +17,49 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.epam.computershop.util.ConstantStorage.*;
+
 public class MainServletContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(MainServletContextListener.class);
     private ConnectionPool connectionPool;
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
+        ServletContext servletContext = servletContextEvent.getServletContext();
         try {
             connectionPool = ConnectionPool.getInstance();
-
-            ServletContext servletContext = servletContextEvent.getServletContext();
-
-            CategoryDao categoryDao = new CategoryDao();
-            LangDao langDao = new LangDao();
-            List<Locale> langs = langDao.findAll();
-            servletContext.setAttribute(ConstantStorage.ALL_LANGS, langs);
-            LOGGER.info("Lang have loaded");
-            Map<Locale, CopyOnWriteArrayList<Category>> langsCategories = categoryDao.findAllByLangs(langs);
-            CategoryUtil.fillChildrenCategories(langsCategories);
-            servletContext.setAttribute(ConstantStorage.ALL_CATEGORIES, langsCategories);
-            LOGGER.info("Categories have loaded");
-            LOGGER.info("Application started successfully");
-        } catch (SQLException | ConnectionPoolException e) {
-            LOGGER.fatal("Failed to initialize servlet context");
+            List<Locale> locales = initLocales(servletContext);
+            initCategories(servletContext, locales);
+            LOGGER.info("Application started successfully.");
+        } catch (SQLException | ConnectionPoolException ex) {
+            LOGGER.fatal("Failed to initialize servlet context.", ex);
         }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        connectionPool.close();
-        LOGGER.info("Application stopped successfully");
+        try {
+            connectionPool.close();
+        } catch (ConnectionPoolException ex) {
+            LOGGER.error(ex);
+        }
+        LOGGER.info("Application stopped successfully.");
+    }
+
+    private List<Locale> initLocales(ServletContext context) throws SQLException, ConnectionPoolException {
+        LangDao langDao = new LangDao();
+        List<Locale> locales = langDao.findAll();
+        context.setAttribute(ALL_LOCALES, locales);
+        LOGGER.info("Lang have loaded.");
+        return locales;
+    }
+
+    private void initCategories(ServletContext context, List<Locale> locales)
+            throws SQLException, ConnectionPoolException {
+        CategoryDao categoryDao = new CategoryDao();
+        Map<Locale, CopyOnWriteArrayList<Category>> localesCategories = categoryDao.findAllByEachLocale(locales);
+        CategoryUtil.fillCategoriesChildren(localesCategories);
+        context.setAttribute(ALL_LOCALES_CATEGORIES, localesCategories);
+        LOGGER.info("Categories have loaded.");
     }
 }

@@ -3,18 +3,6 @@ package com.epam.computershop.util;
 import java.math.BigDecimal;
 
 public final class ConstantStorage {
-    //Constants, that must be synchronized with database values
-    public static final short ORDER_STATUS_BASKET = 1;
-    public static final short ORDER_STATUS_PAID = 2;
-    public static final short ORDER_STATUS_SHIPPING = 3;
-    public static final short ORDER_STATUS_DELIVERED = 4;
-    public static final short ROLE_ID_ADMIN = 2;
-    public static final short ROLE_ID_USER = 1;
-
-    //----------------------------------------
-    public static final short ROLE_ID_GUEST = 0;
-    public static final short ROLE_ID_GUEST_ONLY = -1;
-    public static final short ROLE_ID_ERROR = -2;
     public static final short ZERO = 0;
     public static final short ONE = 1;
     public static final String EMPTY_STRING = "";
@@ -34,20 +22,20 @@ public final class ConstantStorage {
     public static final String APPLICATION_URL = "application_url";
     public static final String APPLICATION_URL_WITH_SERVLET_PATH = "application_servlet_url";
     public static final String CURRENT_USER = "current_user";
-    public static final String CURRENT_DELIVPROF = "current_delivprof";
-    public static final String CURRENT_LANG = "current_lang";
-    public static final String BASKET = "current_cart";
-    public static final String CURRENT_LANG_CATEGORIES = "lang_categories";
+    public static final String CURRENT_DELIVERY_PROFILE = "current_delivery_profile";
+    public static final String CURRENT_LOCALE = "current_locale";
+    public static final String BASKET = "basket";
+    public static final String CURRENT_LOCALE_CATEGORIES = "current_locale_categories";
     public static final String MESSAGES = "messages";
-    public static final String ALL_CATEGORIES = "all_categories";
-    public static final String ALL_LANGS = "all_langs";
+    public static final String ALL_LOCALES_CATEGORIES = "all_locales_categories";
+    public static final String ALL_LOCALES = "all_locales";
     public static final String USERS = "users";
-    public static final String DELIVERY_PROFILES = "user_delivprofiles";
+    public static final String DELIVERY_PROFILES = "user_delivery_profiles";
     public static final String PRODUCTS = "products";
     public static final String PRODUCT = "product";
     public static final String ORDERS = "orders";
-    public static final String ORDER_STATUS_ID = "status_id";
-    public static final String USER_ROLE_ID = "role_id";
+    public static final String ORDER_STATUS = "status";
+    public static final String USER_ROLE = "role";
     public static final String TOTAL_PRICE = "total_price";
     public static final String QUANTITY = "quantity";
     public static final String QUERY = "query";
@@ -88,9 +76,9 @@ public final class ConstantStorage {
     //Login action messages
     public static final String LOGIN_WARN_BAD_DATA = "login.warn.bad_data";
     //Change delivery profile messages
-    public static final String CHANGE_DELIVPROF_WARN_BAD_FULL_NAME = "change_delivprof.warn.full_name";
-    public static final String CHANGE_DELIVPROF_WARN_BAD_ADDRESS = "change_delivprof.warn.address";
-    public static final String CHANGE_DELIVPROF_WARN_BAD_PHONE = "change_delivprof.warn.phone";
+    public static final String CHANGE_DELIVERY_PROFILE_WARN_BAD_FULL_NAME = "change_delivery_profile.warn.full_name";
+    public static final String CHANGE_DELIVERY_PROFILE_WARN_BAD_ADDRESS = "change_delivery_profile.warn.address";
+    public static final String CHANGE_DELIVERY_PROFILE_WARN_BAD_PHONE = "change_delivery_profile.warn.phone";
     //Change category messages
     public static final String CHANGE_CATEGORY_WARN_BAD_NAME = "change_category.warn.name";
 

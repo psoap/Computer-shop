@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@attribute name="currentCount" type="java.lang.Integer" required="true" %>
-<%@attribute name="maxCount" type="java.lang.Integer" required="true" %>
+<%@attribute name="maxCount" type="java.lang.Short" required="true" %>
 <%@attribute name="parameterName" type="java.lang.String" required="true" %>
 <%@attribute name="parameterValue" type="java.lang.Object" required="true" %>
 <c:if test="${currentCount>maxCount}">

@@ -2,8 +2,8 @@ package com.epam.computershop.action.lang;
 
 import com.epam.computershop.action.Action;
 import com.epam.computershop.entity.Category;
-import com.epam.computershop.util.ConstantStorage;
 import com.epam.computershop.util.URLUtil;
+import com.epam.computershop.enums.UserRole;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,22 +13,27 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.epam.computershop.util.ConstantStorage.*;
+
 public class SwapLangAction extends Action {
 
-    public SwapLangAction(short accessRoleId) {
-        super(accessRoleId);
+    public SwapLangAction(UserRole accessRole) {
+        super(accessRole);
     }
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        String langCode = req.getParameter(ConstantStorage.LANG_CODE);
+        String langCode = req.getParameter(LANG_CODE);
         HttpSession session = req.getSession();
-        List<Locale> langs = (List<Locale>) req.getServletContext().getAttribute(ConstantStorage.ALL_LANGS);
-        for (Locale lang : langs) {
-            if (lang.getLanguage().equals(langCode)) {
-                session.setAttribute(ConstantStorage.CURRENT_LANG, lang);
-                Map<Locale, CopyOnWriteArrayList<Category>> allCategories = (Map<Locale, CopyOnWriteArrayList<Category>>) req.getServletContext().getAttribute(ConstantStorage.ALL_CATEGORIES);
-                session.setAttribute(ConstantStorage.CURRENT_LANG_CATEGORIES, allCategories.get(lang));
+        List<Locale> locales = (List<Locale>) req.getServletContext().getAttribute(ALL_LOCALES);
+        for (Locale locale : locales) {
+            if (locale.getLanguage().equals(langCode)) {
+                session.setAttribute(CURRENT_LOCALE, locale);
+                Map<Locale, CopyOnWriteArrayList<Category>> allCategories =
+                        (Map<Locale, CopyOnWriteArrayList<Category>>) req.getServletContext()
+                                .getAttribute(ALL_LOCALES_CATEGORIES);
+
+                session.setAttribute(CURRENT_LOCALE_CATEGORIES, allCategories.get(locale));
             }
         }
         resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);

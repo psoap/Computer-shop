@@ -2,7 +2,6 @@ package com.epam.computershop.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Map;
 
 public class Product implements Entity, Serializable {
     private long id;
@@ -33,8 +32,8 @@ public class Product implements Entity, Serializable {
         return shortDescription;
     }
 
-    public void setShortDescription(String short_description) {
-        this.shortDescription = short_description;
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
     }
 
     public String getDescription() {

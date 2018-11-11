@@ -3,134 +3,138 @@ package com.epam.computershop.dao;
 import com.epam.computershop.connectionpool.ConnectionPool;
 import com.epam.computershop.entity.Category;
 import com.epam.computershop.exception.ConnectionPoolException;
-import com.epam.computershop.util.ConstantStorage;
-import com.epam.computershop.util.SQLQueriesStorage;
 
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class CategoryDao implements Dao<Category> {
+import static com.epam.computershop.util.ConstantStorage.*;
+import static com.epam.computershop.util.SQLQueriesStorage.*;
 
-    @Override
-    public Category insert(Category entity) throws SQLException, ConnectionPoolException {
+public class CategoryDao extends Dao<Category> {
+
+    public void insertCategoryWithTranslations(List<Category> categories)
+            throws SQLException, ConnectionPoolException {
+        Category category = categories.get(ZERO);
+        insert(category);
+        insertCategoryTranslations(category.getId(), categories);
+    }
+
+    public void insertCategoriesTranslations(List<Category> categories)
+            throws SQLException, ConnectionPoolException {
         Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement insertPreparedStatement = connection.prepareStatement(SQLQueriesStorage.INSERT_CATEGORY, Statement.RETURN_GENERATED_KEYS)) {
-            insertPreparedStatement.setShort(ConstantStorage.INDEX_1, entity.getParentId());
-            insertPreparedStatement.setString(ConstantStorage.INDEX_1, entity.getName());
-            insertPreparedStatement.setString(ConstantStorage.INDEX_3, entity.getLangCode());
-            insertPreparedStatement.execute();
-            try(ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys()){
-                if (keysResultSet.next()) {
-                    short insertedCategoryId = keysResultSet.getShort(ConstantStorage.ID);
-                    entity.setId(insertedCategoryId);
-                }
+        connection.setAutoCommit(false);
+        try (PreparedStatement insertTranslationPreparedStatement =
+                     connection.prepareStatement(INSERT_CATEGORY_TRANSLATION)) {
+            for (Category category : categories) {
+                fillTranslationStatement(insertTranslationPreparedStatement, category);
+                insertTranslationPreparedStatement.execute();
             }
-            return entity;
+            connection.commit();
+        } catch (SQLException ex) {
+            connection.rollback();
+            throw ex;
         } finally {
+            connection.setAutoCommit(true);
             ConnectionPool.getInstance().returnConnection(connection);
         }
     }
 
     @Override
-    public Category update(Category entity) throws SQLException, ConnectionPoolException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement updatePreparedStatement = connection.prepareStatement(SQLQueriesStorage.UPDATE_CATEGORY)) {
-            updatePreparedStatement.setString(ConstantStorage.INDEX_1, entity.getName());
-            updatePreparedStatement.setShort(ConstantStorage.INDEX_2, entity.getId());
-            updatePreparedStatement.setString(ConstantStorage.INDEX_3, entity.getLangCode());
-            updatePreparedStatement.execute();
-            return entity;
-        } finally {
-            ConnectionPool.getInstance().returnConnection(connection);
-        }
+    public void insert(Category entity) throws SQLException, ConnectionPoolException {
+        defaultInsert(entity, INSERT_CATEGORY);
+    }
+
+    @Override
+    public void update(Category entity) throws SQLException, ConnectionPoolException {
+        defaultUpdate(entity, UPDATE_CATEGORY_TRANSLATION);
     }
 
     @Override
     public void remove(Category entity) throws SQLException, ConnectionPoolException {
+        defaultRemove(entity, DELETE_CATEGORY);
+    }
+
+    public Map<Locale, CopyOnWriteArrayList<Category>> findAllByEachLocale(List<Locale> locales)
+            throws SQLException, ConnectionPoolException {
+        Map<Locale, CopyOnWriteArrayList<Category>> allCategories = new HashMap<>(locales.size());
         Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement deletePreparedStatement = connection.prepareStatement(SQLQueriesStorage.DELETE_CATEGORY)) {
-            deletePreparedStatement.setShort(ConstantStorage.INDEX_1, entity.getId());
-            deletePreparedStatement.setShort(ConstantStorage.INDEX_2, entity.getId());
-            deletePreparedStatement.setShort(ConstantStorage.INDEX_3, entity.getId());
-            deletePreparedStatement.setShort(ConstantStorage.INDEX_4, entity.getId());
-            deletePreparedStatement.execute();
+        try (PreparedStatement findAllPreparedStatement =
+                     connection.prepareStatement(SELECT_CATEGORIES_BY_LOCALE)) {
+            for (Locale locale : locales) {
+                findAllPreparedStatement.setString(INDEX_1, locale.getLanguage());
+                allCategories.put(locale, getLocaleCategories(findAllPreparedStatement, locale));
+            }
+        } finally {
+            ConnectionPool.getInstance().returnConnection(connection);
+        }
+        return allCategories;
+    }
+
+    private void insertCategoryTranslations(short categoryId, List<Category> categories)
+            throws ConnectionPoolException, SQLException {
+        Connection connection = ConnectionPool.getInstance().getConnection();
+        try (PreparedStatement insertTranslatePreparedStatement =
+                     connection.prepareStatement(INSERT_CATEGORY_TRANSLATION)) {
+            for (Category categoryTranslation : categories) {
+                categoryTranslation.setId(categoryId);
+                fillTranslationStatement(insertTranslatePreparedStatement, categoryTranslation);
+                insertTranslatePreparedStatement.execute();
+            }
         } finally {
             ConnectionPool.getInstance().returnConnection(connection);
         }
     }
 
-    public Map<Locale, CopyOnWriteArrayList<Category>> findAllByLangs(List<Locale> langs) throws SQLException, ConnectionPoolException {
-        Map<Locale, CopyOnWriteArrayList<Category>> all_categories = new HashMap<>(langs.size());
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement findAllPreparedStatement = connection.prepareStatement(SQLQueriesStorage.SELECT_CATEGORIES_BY_LANG)) {
-            for (Locale lang : langs) {
-                findAllPreparedStatement.setString(ConstantStorage.INDEX_1, lang.getLanguage());
-                CopyOnWriteArrayList<Category> langCategories = new CopyOnWriteArrayList<>();
-                try (ResultSet categoriesRS = findAllPreparedStatement.executeQuery()) {
-                    while (categoriesRS.next()) {
-                        Category category = new Category();
-                        category.setId(categoriesRS.getShort(SQLQueriesStorage.COLUMN_ID));
-                        category.setName(categoriesRS.getString(SQLQueriesStorage.COLUMN_NAME));
-                        category.setParentId(categoriesRS.getShort(SQLQueriesStorage.COLUMN_PARENT_ID));
-                        category.setLangCode(lang.getLanguage());
-                        langCategories.add(category);
-                    }
-                }
-                all_categories.put(lang, langCategories);
-            }
-        } finally {
-            ConnectionPool.getInstance().returnConnection(connection);
-        }
-        return all_categories;
-    }
-
-    public void insertList(List<Category> entities) throws SQLException, ConnectionPoolException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        if (!entities.isEmpty()) {
-            Category category = entities.get(ConstantStorage.ZERO);
-            try (PreparedStatement insertPreparedStatement = connection.prepareStatement(SQLQueriesStorage.INSERT_CATEGORY, Statement.RETURN_GENERATED_KEYS)) {
-                if (category.getParentId() != null) {
-                    insertPreparedStatement.setShort(ConstantStorage.INDEX_1, category.getParentId());
-                } else {
-                    insertPreparedStatement.setNull(ConstantStorage.INDEX_1, Types.NULL);
-                }
-                insertPreparedStatement.execute();
-                try (ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys()) {
-                    if (keysResultSet.next()) {
-                        short id = keysResultSet.getShort(ConstantStorage.ID);
-                        try (PreparedStatement insertTranslatePreparedStatement = connection.prepareStatement(SQLQueriesStorage.INSERT_CATEGORY_TRANSLATE)) {
-                            for (Category entity : entities) {
-                                entity.setId(id);
-                                insertTranslatePreparedStatement.setShort(ConstantStorage.INDEX_1, id);
-                                insertTranslatePreparedStatement.setString(ConstantStorage.INDEX_2, entity.getName());
-                                insertTranslatePreparedStatement.setString(ConstantStorage.INDEX_3, entity.getLangCode());
-                                insertTranslatePreparedStatement.execute();
-                            }
-                        }
-                    } else {
-                        throw new SQLException("Can't get generated keys");
-                    }
-                }
-            } finally {
-                ConnectionPool.getInstance().returnConnection(connection);
-            }
+    @Override
+    protected void fillInsertStatement(PreparedStatement preparedStatement, Category entity) throws SQLException {
+        if (entity.getParentId() == null) {
+            preparedStatement.setNull(INDEX_1, Types.NULL);
+        } else {
+            preparedStatement.setShort(INDEX_1, entity.getParentId());
         }
     }
 
-    public void insertTranslateList(List<Category> entities) throws SQLException, ConnectionPoolException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        if (!entities.isEmpty()) {
-            try (PreparedStatement insertTranslatePreparedStatement = connection.prepareStatement(SQLQueriesStorage.INSERT_CATEGORY_TRANSLATE)) {
-                for (Category entity : entities) {
-                    insertTranslatePreparedStatement.setShort(ConstantStorage.INDEX_1, entity.getId());
-                    insertTranslatePreparedStatement.setString(ConstantStorage.INDEX_2, entity.getName());
-                    insertTranslatePreparedStatement.setString(ConstantStorage.INDEX_3, entity.getLangCode());
-                    insertTranslatePreparedStatement.execute();
-                }
-            } finally {
-                ConnectionPool.getInstance().returnConnection(connection);
+    @Override
+    protected void fillUpdateStatement(PreparedStatement preparedStatement, Category entity) throws SQLException {
+        preparedStatement.setString(INDEX_1, entity.getName());
+        preparedStatement.setShort(INDEX_2, entity.getId());
+        preparedStatement.setString(INDEX_3, entity.getLangCode());
+    }
+
+    @Override
+    protected void fillRemoveStatement(PreparedStatement preparedStatement, Category entity) throws SQLException {
+        preparedStatement.setShort(INDEX_1, entity.getId());
+        preparedStatement.setShort(INDEX_2, entity.getId());
+        preparedStatement.setShort(INDEX_3, entity.getId());
+        preparedStatement.setShort(INDEX_4, entity.getId());
+    }
+
+    @Override
+    protected void setEntityPrimaryKeyField(PreparedStatement preparedStatement, Category entity) throws SQLException {
+        entity.setId((short) getGeneratedPrimaryKey(preparedStatement));
+    }
+
+    private void fillTranslationStatement(PreparedStatement preparedStatement, Category category)
+            throws SQLException {
+        preparedStatement.setShort(INDEX_1, category.getId());
+        preparedStatement.setString(INDEX_2, category.getName());
+        preparedStatement.setString(INDEX_3, category.getLangCode());
+    }
+
+    private CopyOnWriteArrayList<Category> getLocaleCategories(PreparedStatement preparedStatement,
+                                                               Locale currentLocale) throws SQLException {
+        CopyOnWriteArrayList<Category> localeCategories = new CopyOnWriteArrayList<>();
+        try (ResultSet categoriesResultSet = preparedStatement.executeQuery()) {
+            while (categoriesResultSet.next()) {
+                Category category = new Category();
+                category.setId(categoriesResultSet.getShort(COLUMN_ID));
+                category.setName(categoriesResultSet.getString(COLUMN_NAME));
+                category.setParentId(categoriesResultSet.getShort(COLUMN_PARENT_ID));
+                category.setLangCode(currentLocale.getLanguage());
+                localeCategories.add(category);
             }
         }
+        return localeCategories;
     }
 }

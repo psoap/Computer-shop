@@ -3,6 +3,7 @@ package com.epam.computershop.util;
 import java.util.regex.Pattern;
 
 public class Validator {
+
     private Validator() {
     }
 

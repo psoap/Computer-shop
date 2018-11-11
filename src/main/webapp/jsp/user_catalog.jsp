@@ -21,12 +21,11 @@
                         <td><c:out value="${user.email}"/></td>
                         <td>
                             <c:choose>
-                                <c:when test="${user.roleId eq 2}">
+                                <c:when test="${user.role eq 'ADMIN'}">
                                     <fmt:message key="txt.admin" bundle="${langBundle}"/>
-                                    <%--<c:out value="(id - ${user.roleId})"/>--%>
                                     <c:url var="swapRole" value="/do/swap_user_role">
                                         <c:param name="id" value="${user.id}"/>
-                                        <c:param name="role_id" value="1"/>
+                                        <c:param name="role" value="USER"/>
                                     </c:url>
                                     <a href="${swapRole}">
                                         -> <fmt:message key="txt.user" bundle="${langBundle}"/>
@@ -34,10 +33,9 @@
                                 </c:when>
                                 <c:otherwise>
                                     <fmt:message key="txt.user" bundle="${langBundle}"/>
-                                    <%--<c:out value="(id - ${user.roleId})"/>--%>
                                     <c:url var="swapRole" value="/do/swap_user_role">
                                         <c:param name="id" value="${user.id}"/>
-                                        <c:param name="role_id" value="2"/>
+                                        <c:param name="role" value="ADMIN"/>
                                     </c:url>
                                     <a href="${swapRole}">
                                         -> <fmt:message key="txt.admin" bundle="${langBundle}"/>

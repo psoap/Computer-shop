@@ -1,11 +1,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page import="static com.epam.computershop.util.ConstantStorage.COUNT_PRODUCTS_ON_PAGE"%>
 <t:wrapper title="${requestScope.name}">
     <jsp:body>
         <div class="workarea-left">
             <%@include file="/WEB-INF/jspf/category_list.jspf" %>
         </div>
         <div class="workarea-right">
-            <c:if test="${sessionScope.current_user.roleId eq constants.ROLE_ID_ADMIN}">
+            <c:if test="${sessionScope.current_user.role eq 'ADMIN'}">
                 <a href="<c:url value="/do/edit_page_product"/>">
                     <button><fmt:message key="txt.add" bundle="${langBundle}"/></button>
                 </a>
@@ -42,7 +43,7 @@
                                     <a href="${basketUrl}">
                                         <button><fmt:message key="txt.to_basket" bundle="${langBundle}"/></button>
                                     </a><br/>
-                                    <c:if test="${sessionScope.current_user.roleId eq constants.ROLE_ID_ADMIN}">
+                                    <c:if test="${sessionScope.current_user.role eq 'ADMIN'}">
                                         <c:url var="editUrl" value="/do/edit_page_product">
                                             <c:param name="id" value="${product.id}"/>
                                         </c:url>
@@ -59,8 +60,8 @@
                                 </div>
                             </div>
                         </c:forEach>
-                        <t:page_navigation currentCount="${requestScope.quantity}" maxCount="${constants.COUNT_PRODUCTS_ON_PAGE}"
-                                           parameterName="id" parameterValue="${requestScope.id}"/>
+                        <t:pageNavigation currentCount="${requestScope.quantity}" maxCount="<%=COUNT_PRODUCTS_ON_PAGE%>"
+                                          parameterName="id" parameterValue="${requestScope.id}"/>
                     </c:when>
                     <c:otherwise>
                         <fmt:message key="txt.list_empty" bundle="${langBundle}"/>

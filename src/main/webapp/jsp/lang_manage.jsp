@@ -1,9 +1,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<fmt:message key="txt.manage_langs" bundle="${langBundle}" var="title"/>
+<fmt:message key="txt.manage_lang" bundle="${langBundle}" var="title"/>
 <t:wrapper title="${title}">
     <jsp:body>
         <div class="workarea-left">
-            <%@include file="/WEB-INF/jspf/profile_menu.jspf" %>
+            <%@include file="/WEB-INF/jspf/admin_menu.jspf" %>
         </div>
         <div class="workarea-right">
             <form action="<c:url value="/do/add_lang"/>" method="post">
@@ -16,8 +16,8 @@
                         <td><label><fmt:message key="txt.name" bundle="${langBundle}"/>:</label></td>
                         <td><input type="text" name="name"></td>
                     </tr>
-                    <c:if test="${not empty sessionScope.lang_categories}">
-                        <c:forEach var="category" items="${sessionScope.lang_categories}">
+                    <c:if test="${not empty sessionScope.current_locale_categories}">
+                        <c:forEach var="category" items="${sessionScope.current_locale_categories}">
                             <tr>
                                 <td>${category.name}</td>
                                 <td><input type="text" name="translate_categories"></td>

@@ -14,8 +14,8 @@
                         <td>
                             <select name="parent_id">
                                 <option selected="selected"></option>
-                                <c:if test="${not empty sessionScope.lang_categories}">
-                                    <c:forEach var="category" items="${sessionScope.lang_categories}">
+                                <c:if test="${not empty sessionScope.current_locale_categories}">
+                                    <c:forEach var="category" items="${sessionScope.current_locale_categories}">
                                         <c:if test="${category.parentId eq 0}">
                                             <option value="${category.id}">${category.name}</option>
                                         </c:if>
@@ -24,9 +24,9 @@
                             </select>
                         </td>
                     </tr>
-                    <c:forEach var="lang" items="${applicationScope.all_langs}">
+                    <c:forEach var="lang" items="${applicationScope.all_locales}">
                         <tr>
-                            <td>${tg:getTranslatedName(lang, sessionScope.current_lang)} <fmt:message
+                            <td>${tg:getTranslatedName(lang, sessionScope.current_locale)} <fmt:message
                                     key="txt.translate"
                                     bundle="${langBundle}"/></td>
                             <td><input type="text" name="${lang.language}" value=""/></td>
@@ -44,8 +44,8 @@
                         <td>
                             <input type="hidden" name="lang_code" id="lang_code">
                             <select name="id" id="select_id" onchange="editCategoryLang()">
-                                <c:forEach var="langCategoriesEntry" items="${applicationScope.all_categories}">
-                                    <c:forEach var="category" items="${langCategoriesEntry.value}">
+                                <c:forEach var="localeCategoriesEntry" items="${applicationScope.all_locales_categories}">
+                                    <c:forEach var="category" items="${localeCategoriesEntry.value}">
                                         <option value="${category.id}" class="${category.langCode}">
                                             <c:out value="${category.name}"/>
                                         </option>
@@ -62,7 +62,7 @@
                 <input type="submit" value="<fmt:message key="txt.edit" bundle="${langBundle}"/>">
             </form>
             <hr/>
-            <c:if test="${not empty sessionScope.lang_categories}">
+            <c:if test="${not empty sessionScope.current_locale_categories}">
                 <h4><fmt:message key="txt.remove" bundle="${langBundle}"/></h4>
                 <form action="<c:url value="/do/remove_category"/>">
                     <table>
@@ -70,7 +70,7 @@
                             <td><fmt:message key="txt.category" bundle="${langBundle}"/></td>
                             <td>
                                 <select name="id">
-                                    <c:forEach var="category" items="${sessionScope.lang_categories}">
+                                    <c:forEach var="category" items="${sessionScope.current_locale_categories}">
                                         <option value="${category.id}">${category.name}</option>
                                     </c:forEach>
                                 </select>

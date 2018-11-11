@@ -3,10 +3,10 @@
 <t:wrapper title="${title}">
     <jsp:body>
         <form action="<c:url value="/do/checkout"/>" method="post">
-            <label><fmt:message key="txt.delivprof" bundle="${langBundle}"/>:</label>
-            <select name="current_delivprof">
+            <label><fmt:message key="txt.delivery_profile" bundle="${langBundle}"/>:</label>
+            <select name="current_delivery_profile">
                 <option selected="selected"></option>
-                <c:forEach var="profile" items="${requestScope.user_delivprofiles}">
+                <c:forEach var="profile" items="${requestScope.user_delivery_profiles}">
                     <option value="${profile.id}"><c:out value="${profile.addressLocation} | ${profile.phoneNumber}"/></option>
                 </c:forEach>
             </select><br/>

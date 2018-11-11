@@ -2,14 +2,15 @@ package com.epam.computershop.action.user;
 
 import com.epam.computershop.action.Action;
 import com.epam.computershop.util.ConstantStorage;
+import com.epam.computershop.enums.UserRole;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class LogoutAction extends Action {
 
-    public LogoutAction(short accessRoleId) {
-        super(accessRoleId);
+    public LogoutAction(UserRole accessRole) {
+        super(accessRole);
     }
 
     @Override

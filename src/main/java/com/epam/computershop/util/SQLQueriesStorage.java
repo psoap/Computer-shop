@@ -9,7 +9,6 @@ public final class SQLQueriesStorage {
     public static final String COLUMN_PRICE = "price";
     public static final String COLUMN_CATEGORY_ID = "category_id";
     public static final String COLUMN_STATUS_ID = "status_id";
-    public static final String COLUMN_PRODUCT_ID = "product_id";
     public static final String COLUMN_DELIVERY_PROFILE_ID = "delivery_profile_id";
     public static final String COLUMN_QUANTITY = "quantity";
     public static final String COLUMN_EMAIL = "email";
@@ -33,7 +32,7 @@ public final class SQLQueriesStorage {
     public static final String SELECT_ALL_USERS = "SELECT * FROM \"user\" ";
     public static final String SELECT_USER_BY_LOGIN = SELECT_ALL_USERS + "WHERE login=?;";
     public static final String SELECT_USER_BY_ID = SELECT_ALL_USERS + "WHERE id=?;";
-    public static final String INSERT_USER = "INSERT INTO \"user\" (email, login, password, role_id, balance)\n" +
+    public static final String INSERT_USER = "INSERT INTO \"user\" (email, password, role_id, balance, login)\n" +
             "VALUES(?, ?, ?, ?, ?);";
     public static final String UPDATE_USER = "UPDATE \"user\"\n" +
             "SET email = ?, password = ?, role_id = ?, balance = ?\nWHERE id = ?;";
@@ -42,7 +41,7 @@ public final class SQLQueriesStorage {
     //Delivery Profile Table
     public static final String SELECT_DELIVERY_PROFILES_BY_USER_ID = "SELECT * FROM \"delivery_profile\" WHERE user_id=?";
     public static final String SELECT_USER_DELIVERY_PROFILE_BY_ID = "SELECT * FROM \"delivery_profile\" WHERE id=?;";
-    public static final String INSERT_DELIVERY_PROFILE = "INSERT INTO \"delivery_profile\" (user_id, first_name, last_name, patronymic, address_location, phone_number)\n" +
+    public static final String INSERT_DELIVERY_PROFILE = "INSERT INTO \"delivery_profile\" (first_name, last_name, patronymic, address_location, phone_number, user_id)\n" +
             "VALUES(?, ?, ?, ?, ?, ?);";
     public static final String UPDATE_DELIVERY_PROFILE = "UPDATE \"delivery_profile\"\n" +
             "SET first_name=?, last_name=?, patronymic=?, address_location=?, phone_number=?\n" +
@@ -50,26 +49,26 @@ public final class SQLQueriesStorage {
     public static final String DELETE_DELIVERY_PROFILE = "DELETE FROM \"delivery_profile\" WHERE id = ?;";
 
     //Lang Table
-    public static final String SELECT_ALL_LANGS = "SELECT code FROM \"lang\" ";
-    public static final String INSERT_LANG = "INSERT INTO \"lang\" (code, name)\nVALUES(?, ?);";
+    public static final String SELECT_ALL_LOCALES = "SELECT code FROM \"lang\" ";
+    public static final String INSERT_LOCALE = "INSERT INTO \"lang\" (code, name)\nVALUES(?, ?);";
 
     //Category Table
-    public static final String SELECT_CATEGORIES_BY_LANG =
-            "SELECT * FROM \"category\", \"category_translate\" " +
-                    "WHERE \"category_translate\".lang_code = ? " +
-                    "AND \"category_translate\".category_id = \"category\".id;";
     public static final String INSERT_CATEGORY = "INSERT INTO \"category\" (parent_id)\nVALUES(?);";
-    public static final String UPDATE_CATEGORY = "UPDATE \"category_translate\"\n" +
-            "SET name = ?\n" +
-            "WHERE category_id = ? AND lang_code=?";
     public static final String DELETE_CATEGORY = "DELETE FROM \"category_translate\" " +
             "WHERE \"category_translate\".category_id = ? OR \"category_translate\".category_id " +
             "IN (SELECT \"category\".id FROM \"category\" WHERE \"category\".parent_id = ?);\n" +
             "DELETE FROM \"category\" " +
             "WHERE \"category\".id = ? OR \"category\".parent_id = ?;";
+    public static final String SELECT_CATEGORIES_BY_LOCALE =
+            "SELECT * FROM \"category\", \"category_translate\" " +
+                    "WHERE \"category_translate\".lang_code = ? " +
+                    "AND \"category_translate\".category_id = \"category\".id;";
 
     //Category Translate Table
-    public static final String INSERT_CATEGORY_TRANSLATE = "INSERT INTO \"category_translate\" (category_id, name, lang_code)\nVALUES(?, ?, ?);";
+    public static final String INSERT_CATEGORY_TRANSLATION = "INSERT INTO \"category_translate\" (category_id, name, lang_code)\nVALUES(?, ?, ?);";
+    public static final String UPDATE_CATEGORY_TRANSLATION = "UPDATE \"category_translate\"\n" +
+            "SET name = ?\n" +
+            "WHERE category_id = ? AND lang_code=?";
 
     //Product Table
     public static final String INSERT_PRODUCT = "INSERT INTO \"product\" (name, short_description, description, price, category_id, image_url)\nVALUES(?, ?, ?, ?, ?, ?);";
@@ -82,7 +81,7 @@ public final class SQLQueriesStorage {
     public static final String SELECT_PRODUCTS_COUNT_BY_CATEGORY = "SELECT COUNT(id) FROM \"product\" WHERE category_id = ?;";
 
     //Order Table
-    public static final String INSERT_ORDER = "INSERT INTO \"order\" (user_id, delivery_profile_id, status_id, total_price, change_date)\n VALUES(?, ?, ?, ?, ?);";
+    public static final String INSERT_ORDER = "INSERT INTO \"order\" (delivery_profile_id, status_id, total_price, change_date, user_id)\n VALUES(?, ?, ?, ?, ?);";
     public static final String DELETE_ORDER = "DELETE FROM \"order_product\" WHERE order_id = ?;DELETE FROM \"order\" WHERE id = ?;";
     public static final String SELECT_ORDERS = "SELECT * FROM \"order\" WHERE user_id=?;";
     public static final String SELECT_ORDER_BY_ID = "SELECT * FROM \"order\" WHERE id=?;";
@@ -95,7 +94,6 @@ public final class SQLQueriesStorage {
     public static final String SELECT_ORDER_PRODUCT = "SELECT * FROM \"order_product\"\n" +
             "FULL OUTER JOIN \"product\" ON \"order_product\".product_id=\"product\".id\n" +
             "WHERE \"order_product\".order_id=?";
-    public static final String SELECT_ORDER_PRODUCTS_IDS = "SELECT \"order_product\".product_id FROM \"order_product\" WHERE order_id=?;";
     public static final String INSERT_ORDER_PRODUCT = "INSERT INTO \"order_product\" (order_id, product_id, quantity)\n" +
             "SELECT \"order\".id, ?, ? FROM \"order\" WHERE user_id=? AND status_id=?" +
             "ON CONFLICT ON CONSTRAINT order_product_order_id_product_id_key DO UPDATE SET quantity=?;";

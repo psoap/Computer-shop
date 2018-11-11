@@ -19,7 +19,7 @@
                 <a href="${basketUrl}">
                     <button><fmt:message key="txt.to_basket" bundle="${langBundle}"/></button>
                 </a><br/>
-                <c:if test="${sessionScope.current_user.roleId eq constants.ROLE_ID_ADMIN}">
+                <c:if test="${sessionScope.current_user.role eq 'ADMIN'}">
                     <c:url var="editUrl" value="/do/edit_page_product">
                         <c:param name="id" value="${product.id}"/>
                     </c:url>

@@ -1,115 +1,104 @@
 package com.epam.computershop.action.deliveryprofile;
 
-import com.epam.computershop.action.Action;
 import com.epam.computershop.action.ActionFactory;
+import com.epam.computershop.action.ChangeAction;
 import com.epam.computershop.dao.DeliveryProfileDao;
 import com.epam.computershop.entity.DeliveryProfile;
 import com.epam.computershop.entity.User;
+import com.epam.computershop.enums.UserRole;
 import com.epam.computershop.exception.ConnectionPoolException;
-import com.epam.computershop.util.*;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ChangeDeliveryProfileAction extends Action {
+import static com.epam.computershop.util.ConstantStorage.*;
+import static com.epam.computershop.util.Validator.validate;
+import static com.epam.computershop.util.ValidatorSettingsStorage.*;
+
+public class ChangeDeliveryProfileAction extends ChangeAction<DeliveryProfile> {
     private static final Logger LOGGER = Logger.getLogger(ChangeDeliveryProfileAction.class);
 
-    public ChangeDeliveryProfileAction(short accessRoleId) {
-        super(accessRoleId);
-    }
-
-    private static void validateForm(String firstName, String lastName, String patronymic,
-                                     String addressLocation, String phoneNumber, List<String> messagesForJsp) {
-        if (!(Validator.validate(ValidatorSettingsStorage.DELIVPROF_FULL_NAME_PATTERN, firstName)
-                && Validator.validate(ValidatorSettingsStorage.DELIVPROF_FULL_NAME_PATTERN, lastName)
-                && Validator.validate(ValidatorSettingsStorage.DELIVPROF_FULL_NAME_PATTERN, patronymic))) {
-            messagesForJsp.add(ConstantStorage.CHANGE_DELIVPROF_WARN_BAD_FULL_NAME);
-        }
-        if (!Validator.validate(ValidatorSettingsStorage.DELIVPROF_ADDRESS_PATTERN, addressLocation)) {
-            messagesForJsp.add(ConstantStorage.CHANGE_DELIVPROF_WARN_BAD_ADDRESS);
-        }
-        if (!Validator.validate(ValidatorSettingsStorage.DELIVPROF_PHONE_PATTERN, phoneNumber)) {
-            messagesForJsp.add(ConstantStorage.CHANGE_DELIVPROF_WARN_BAD_PHONE);
-        }
-    }
-
-    private DeliveryProfile add(User currentUser, DeliveryProfile profile, List<String> messagesForJsp) throws SQLException, ConnectionPoolException {
-        DeliveryProfileDao profileDao = new DeliveryProfileDao();
-        DeliveryProfile newProfile = new DeliveryProfile();
-        profileDao.insert(profile);
-        LOGGER.debug("Delivery profile id - " + newProfile.getId() + " was created, by user - " + currentUser.getLogin());
-        messagesForJsp.add(ConstantStorage.GENERAL_SUCCESS);
-        return newProfile;
-    }
-
-    private DeliveryProfile edit(User currentUser, DeliveryProfile profile, List<String> messagesForJsp) throws SQLException, ConnectionPoolException {
-        DeliveryProfileDao profilesDao = new DeliveryProfileDao();
-        DeliveryProfile existedProfile = profilesDao.findById(profile.getId());
-        if (existedProfile != null && existedProfile.getUserId() == currentUser.getId()) {
-            existedProfile.setFirstName(profile.getFirstName());
-            existedProfile.setLastName(profile.getLastName());
-            existedProfile.setPatronymic(profile.getPatronymic());
-            existedProfile.setAddressLocation(profile.getAddressLocation());
-            existedProfile.setPhoneNumber(profile.getPhoneNumber());
-            profilesDao.update(existedProfile);
-            LOGGER.debug("Delivery profile id - " + profile.getId() + " was updated, by user - " + currentUser.getLogin());
-            messagesForJsp.add(ConstantStorage.GENERAL_SUCCESS);
-        } else {
-            messagesForJsp.add(ConstantStorage.GENERAL_WARN_BAD_DATA);
-        }
-        return profile;
+    public ChangeDeliveryProfileAction(UserRole accessRole) {
+        super(accessRole);
     }
 
     @Override
-    public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        String responseUrl = JSP_DELIVEPROF_CHANGE;
-        List<String> messagesForJsp = (List<String>) req.getSession().getAttribute(ConstantStorage.MESSAGES);
+    protected String add(HttpServletRequest req, DeliveryProfile entity, List<String> messagesForJsp) {
+        User currentUser = (User) req.getSession().getAttribute(CURRENT_USER);
+        entity.setUserId(currentUser.getId());
 
-        String firstName = req.getParameter(ConstantStorage.FIRST_NAME).trim();
-        String lastName = req.getParameter(ConstantStorage.LAST_NAME).trim();
-        String patronymic = req.getParameter(ConstantStorage.PATRONYMIC).trim();
-        String address = req.getParameter(ConstantStorage.ADDRESS_LOCATION).trim();
-        String phone = req.getParameter(ConstantStorage.PHONE_NUMBER).trim();
-
-        User currentUser = (User) req.getSession().getAttribute(ConstantStorage.CURRENT_USER);
-        long profileIdFromRequest = NumberUtil.tryParseLong(req.getParameter(ConstantStorage.ID));
-        validateForm(firstName, lastName, patronymic, address, phone, messagesForJsp);
-
-        if (messagesForJsp.isEmpty()) {
-            DeliveryProfile buffDeliveryProfile = new DeliveryProfile();
-            buffDeliveryProfile.setFirstName(firstName);
-            buffDeliveryProfile.setLastName(lastName);
-            buffDeliveryProfile.setPatronymic(patronymic);
-            buffDeliveryProfile.setAddressLocation(address);
-            buffDeliveryProfile.setPhoneNumber(phone);
-
-            if (profileIdFromRequest == NumberUtil.INVALID_NUMBER) {
-                try {
-                    buffDeliveryProfile.setUserId(currentUser.getId());
-                    add(currentUser, buffDeliveryProfile, messagesForJsp);
-                    resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-                    responseUrl = ((String) req.getServletContext().getAttribute(ConstantStorage.APPLICATION_URL_WITH_SERVLET_PATH))
-                            .concat(ActionFactory.ACTION_DELIVPROF_CATALOG);
-                } catch (SQLException | ConnectionPoolException e) {
-                    LOGGER.error("Failed to insert delivery profile by user - " + currentUser.getLogin());
-                    messagesForJsp.add(ConstantStorage.GENERAL_ERROR_ACTION_FAILED);
-                }
-            } else {
-                try {
-                    buffDeliveryProfile.setId(profileIdFromRequest);
-                    edit(currentUser, buffDeliveryProfile, messagesForJsp);
-                    resp.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-                    responseUrl = ((String) req.getServletContext().getAttribute(ConstantStorage.APPLICATION_URL_WITH_SERVLET_PATH))
-                            .concat(ActionFactory.ACTION_DELIVPROF_CATALOG);
-                } catch (SQLException | ConnectionPoolException e) {
-                    LOGGER.error("Failed to update delivery profile by user - " + currentUser.getLogin());
-                    messagesForJsp.add(ConstantStorage.GENERAL_ERROR_ACTION_FAILED);
-                }
-            }
+        DeliveryProfileDao profileDao = new DeliveryProfileDao();
+        try {
+            profileDao.insert(entity);
+            LOGGER.debug("Delivery profile id - " + entity.getId()
+                    + " was created, by user - " + currentUser.getLogin());
+            messagesForJsp.add(GENERAL_SUCCESS);
+        } catch (SQLException | ConnectionPoolException e) {
+            LOGGER.error("Failed to insert delivery profile by user - " + currentUser.getLogin(), e);
+            messagesForJsp.add(GENERAL_ERROR_ACTION_FAILED);
         }
-        return responseUrl;
+        return ((String) req.getServletContext().getAttribute(APPLICATION_URL_WITH_SERVLET_PATH))
+                .concat(ActionFactory.ACTION_DELIVERY_PROFILE_CATALOG);
+    }
+
+    @Override
+    protected String edit(HttpServletRequest req, long entityId,
+                          DeliveryProfile entity, List<String> messagesForJsp) {
+        User currentUser = (User) req.getSession().getAttribute(CURRENT_USER);
+        DeliveryProfileDao profilesDao = new DeliveryProfileDao();
+        try {
+            DeliveryProfile existedProfile = profilesDao.findById(entityId);
+            if ((existedProfile != null) && (existedProfile.getUserId() == currentUser.getId())) {
+                existedProfile.setFirstName(entity.getFirstName());
+                existedProfile.setLastName(entity.getLastName());
+                existedProfile.setPatronymic(entity.getPatronymic());
+                existedProfile.setAddressLocation(entity.getAddressLocation());
+                existedProfile.setPhoneNumber(entity.getPhoneNumber());
+                profilesDao.update(existedProfile);
+                LOGGER.debug("Delivery profile id - " + entityId
+                        + " was updated, by user - " + currentUser.getLogin());
+                messagesForJsp.add(GENERAL_SUCCESS);
+            } else {
+                messagesForJsp.add(GENERAL_WARN_BAD_DATA);
+            }
+        } catch (SQLException | ConnectionPoolException e) {
+            LOGGER.error("Failed to update delivery profile by user - " + currentUser.getLogin(), e);
+            messagesForJsp.add(GENERAL_ERROR_ACTION_FAILED);
+        }
+        return ((String) req.getServletContext().getAttribute(APPLICATION_URL_WITH_SERVLET_PATH))
+                .concat(ActionFactory.ACTION_DELIVERY_PROFILE_CATALOG);
+    }
+
+    @Override
+    protected boolean validateForm(DeliveryProfile profile, List<String> messagesForJsp) {
+        boolean result = false;
+        if (!(validate(DELIVERY_PROFILE_FULL_NAME_PATTERN, profile.getFirstName())
+                && validate(DELIVERY_PROFILE_FULL_NAME_PATTERN, profile.getLastName())
+                && validate(DELIVERY_PROFILE_FULL_NAME_PATTERN, profile.getPatronymic()))) {
+            messagesForJsp.add(CHANGE_DELIVERY_PROFILE_WARN_BAD_FULL_NAME);
+            result = true;
+        }
+        if (!validate(DELIVERY_PROFILE_ADDRESS_PATTERN, profile.getAddressLocation())) {
+            messagesForJsp.add(CHANGE_DELIVERY_PROFILE_WARN_BAD_ADDRESS);
+            result = true;
+        }
+        if (!validate(DELIVERY_PROFILE_PHONE_PATTERN, profile.getPhoneNumber())) {
+            messagesForJsp.add(CHANGE_DELIVERY_PROFILE_WARN_BAD_PHONE);
+            result = true;
+        }
+        return result;
+    }
+
+    @Override
+    protected DeliveryProfile getEntityFromRequest(HttpServletRequest req) {
+        DeliveryProfile profile = new DeliveryProfile();
+        profile.setFirstName(req.getParameter(FIRST_NAME).trim());
+        profile.setLastName(req.getParameter(LAST_NAME).trim());
+        profile.setPatronymic(req.getParameter(PATRONYMIC).trim());
+        profile.setAddressLocation(req.getParameter(ADDRESS_LOCATION).trim());
+        profile.setPhoneNumber(req.getParameter(PHONE_NUMBER).trim());
+        return profile;
     }
 }

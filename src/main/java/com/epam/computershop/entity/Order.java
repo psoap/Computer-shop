@@ -1,5 +1,7 @@
 package com.epam.computershop.entity;
 
+import com.epam.computershop.enums.OrderStatus;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -7,7 +9,7 @@ import java.sql.Timestamp;
 public class Order implements Entity, Serializable {
     private long id;
     private long userId;
-    private short statusId;
+    private OrderStatus status;
     private Long deliveryProfileId;
     private BigDecimal totalPrice;
     private Timestamp changeDate;
@@ -28,12 +30,12 @@ public class Order implements Entity, Serializable {
         this.userId = userId;
     }
 
-    public short getStatusId() {
-        return statusId;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setStatusId(short statusId) {
-        this.statusId = statusId;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public Long getDeliveryProfileId() {

@@ -16,4 +16,6 @@ A step by step instructions to get a project running:
 8. Run the project in IntelliJ IDEA.
 9. Go to a browser and input `localhost:8080` in the address line.
 
+**NOTE: recommended database - PostgreSQL 9.6+**
+
 Root user login `admin` and password `admin123`.

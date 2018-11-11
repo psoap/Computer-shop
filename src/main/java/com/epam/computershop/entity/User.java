@@ -1,5 +1,7 @@
 package com.epam.computershop.entity;
 
+import com.epam.computershop.enums.UserRole;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -8,7 +10,7 @@ public class User implements Entity, Serializable {
     private String email;
     private String login;
     private String password;
-    private short roleId;
+    private UserRole role;
     private BigDecimal balance;
 
     public long getId() {
@@ -43,12 +45,12 @@ public class User implements Entity, Serializable {
         this.password = password;
     }
 
-    public short getRoleId() {
-        return roleId;
+    public UserRole getRole() {
+        return role;
     }
 
-    public void setRoleId(short roleId) {
-        this.roleId = roleId;
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     public BigDecimal getBalance() {

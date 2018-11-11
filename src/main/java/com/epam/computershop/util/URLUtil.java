@@ -3,7 +3,7 @@ package com.epam.computershop.util;
 import javax.servlet.http.HttpServletRequest;
 
 public class URLUtil {
-   private static final String REFERER = "referer";
+    private static final String REFERER = "referer";
 
     private URLUtil() {
     }

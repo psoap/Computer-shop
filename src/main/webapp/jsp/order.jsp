@@ -39,7 +39,7 @@
                                                scope="session"/>
                                         <c:out value="${product.price*entry.value}"/><br/>
                                         <c:choose>
-                                            <c:when test="${requestScope.status_id eq constants.ORDER_STATUS_BASKET}">
+                                            <c:when test="${requestScope.status eq 'BASKET'}">
                                                 <c:url var="productQuery" value="/do/update_quantity">
                                                     <c:param name="id" value="${product.id}"/>
                                                 </c:url>
@@ -66,7 +66,7 @@
                     </div>
                     <fmt:message key="txt.order_cost" bundle="${langBundle}"/>
                     <c:out value="${sessionScope.total_price}"/>
-                    <c:if test="${requestScope.status_id eq constants.ORDER_STATUS_BASKET}">
+                    <c:if test="${requestScope.status eq 'BASKET'}">
                         <a href="<c:url value="/do/page_checkout"/>">
                             <button><fmt:message key="txt.checkout" bundle="${langBundle}"/></button>
                         </a>

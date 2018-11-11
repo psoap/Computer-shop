@@ -3,71 +3,40 @@ package com.epam.computershop.dao;
 import com.epam.computershop.connectionpool.ConnectionPool;
 import com.epam.computershop.entity.DeliveryProfile;
 import com.epam.computershop.exception.ConnectionPoolException;
-import com.epam.computershop.util.ConstantStorage;
-import com.epam.computershop.util.SQLQueriesStorage;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeliveryProfileDao implements Dao<DeliveryProfile> {
+import static com.epam.computershop.util.ConstantStorage.*;
+import static com.epam.computershop.util.SQLQueriesStorage.*;
+
+public class DeliveryProfileDao extends Dao<DeliveryProfile> {
     @Override
-    public DeliveryProfile insert(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement insertPreparedStatement = connection.prepareStatement(SQLQueriesStorage.INSERT_DELIVERY_PROFILE, Statement.RETURN_GENERATED_KEYS)) {
-            insertPreparedStatement.setLong(ConstantStorage.INDEX_1, entity.getUserId());
-            insertPreparedStatement.setString(ConstantStorage.INDEX_2, entity.getFirstName());
-            insertPreparedStatement.setString(ConstantStorage.INDEX_3, entity.getLastName());
-            insertPreparedStatement.setString(ConstantStorage.INDEX_4, entity.getPatronymic());
-            insertPreparedStatement.setString(ConstantStorage.INDEX_5, entity.getAddressLocation());
-            insertPreparedStatement.setString(ConstantStorage.INDEX_6, entity.getPhoneNumber());
-            insertPreparedStatement.execute();
-            try(ResultSet keysResultSet = insertPreparedStatement.getGeneratedKeys()){
-                if (keysResultSet.next()) {
-                    entity.setId(keysResultSet.getLong(SQLQueriesStorage.COLUMN_ID));
-                }
-            }
-            return entity;
-        } finally {
-            ConnectionPool.getInstance().returnConnection(connection);
-        }
+    public void insert(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
+        defaultInsert(entity,INSERT_DELIVERY_PROFILE);
     }
 
     @Override
-    public DeliveryProfile update(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement updatePreparedStatement = connection.prepareStatement(SQLQueriesStorage.UPDATE_DELIVERY_PROFILE)) {
-            updatePreparedStatement.setString(ConstantStorage.INDEX_1, entity.getFirstName());
-            updatePreparedStatement.setString(ConstantStorage.INDEX_2, entity.getLastName());
-            updatePreparedStatement.setString(ConstantStorage.INDEX_3, entity.getPatronymic());
-            updatePreparedStatement.setString(ConstantStorage.INDEX_4, entity.getAddressLocation());
-            updatePreparedStatement.setString(ConstantStorage.INDEX_5, entity.getPhoneNumber());
-            updatePreparedStatement.setLong(ConstantStorage.INDEX_6, entity.getId());
-            updatePreparedStatement.execute();
-            return entity;
-        } finally {
-            ConnectionPool.getInstance().returnConnection(connection);
-        }
+    public void update(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
+        defaultUpdate(entity, UPDATE_DELIVERY_PROFILE);
     }
 
     @Override
     public void remove(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement deletePreparedStatement = connection.prepareStatement(SQLQueriesStorage.DELETE_DELIVERY_PROFILE)) {
-            deletePreparedStatement.setLong(ConstantStorage.INDEX_1, entity.getId());
-            deletePreparedStatement.execute();
-        } finally {
-            ConnectionPool.getInstance().returnConnection(connection);
-        }
+        defaultRemove(entity, DELETE_DELIVERY_PROFILE);
     }
 
     public List<DeliveryProfile> findAllByUserId(long userId) throws SQLException, ConnectionPoolException {
         List<DeliveryProfile> profiles = new ArrayList<>();
         Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement findAllPreparedStatement = connection.prepareStatement(SQLQueriesStorage.SELECT_DELIVERY_PROFILES_BY_USER_ID)) {
-            findAllPreparedStatement.setLong(ConstantStorage.INDEX_1, userId);
+        try (PreparedStatement findAllPreparedStatement =
+                     connection.prepareStatement(SELECT_DELIVERY_PROFILES_BY_USER_ID)) {
+            findAllPreparedStatement.setLong(INDEX_1, userId);
             try (ResultSet profilesResultSet = findAllPreparedStatement.executeQuery()) {
-                fillListFromResultSet(profilesResultSet, profiles);
+                while (profilesResultSet.next()) {
+                    profiles.add(getFilledProfile(profilesResultSet));
+                }
             }
             return profiles;
         } finally {
@@ -78,18 +47,12 @@ public class DeliveryProfileDao implements Dao<DeliveryProfile> {
     public DeliveryProfile findById(long id) throws ConnectionPoolException, SQLException {
         DeliveryProfile profile = null;
         Connection connection = ConnectionPool.getInstance().getConnection();
-        try (PreparedStatement findOnePreparedStatement = connection.prepareStatement(SQLQueriesStorage.SELECT_USER_DELIVERY_PROFILE_BY_ID)) {
-            findOnePreparedStatement.setLong(ConstantStorage.INDEX_1, id);
+        try (PreparedStatement findOnePreparedStatement =
+                     connection.prepareStatement(SELECT_USER_DELIVERY_PROFILE_BY_ID)) {
+            findOnePreparedStatement.setLong(INDEX_1, id);
             try (ResultSet profileResultSet = findOnePreparedStatement.executeQuery()) {
                 if (profileResultSet.next()) {
-                    profile = new DeliveryProfile();
-                    profile.setId(profileResultSet.getLong(SQLQueriesStorage.COLUMN_ID));
-                    profile.setUserId(profileResultSet.getLong(SQLQueriesStorage.COLUMN_USER_ID));
-                    profile.setFirstName(profileResultSet.getString(SQLQueriesStorage.COLUMN_FIRST_NAME));
-                    profile.setLastName(profileResultSet.getString(SQLQueriesStorage.COLUMN_LAST_NAME));
-                    profile.setPatronymic(profileResultSet.getString(SQLQueriesStorage.COLUMN_PATRONYMIC));
-                    profile.setAddressLocation(profileResultSet.getString(SQLQueriesStorage.COLUMN_ADDRESS_LOCATION));
-                    profile.setPhoneNumber(profileResultSet.getString(SQLQueriesStorage.COLUMN_PHONE_NUMBER));
+                    profile = getFilledProfile(profileResultSet);
                 }
             }
             return profile;
@@ -98,17 +61,46 @@ public class DeliveryProfileDao implements Dao<DeliveryProfile> {
         }
     }
 
-    private static void fillListFromResultSet(ResultSet profilesResultSet, List<DeliveryProfile> profilesList) throws SQLException {
-        while (profilesResultSet.next()) {
-            DeliveryProfile profile = new DeliveryProfile();
-            profile.setId(profilesResultSet.getLong(SQLQueriesStorage.COLUMN_ID));
-            profile.setUserId(profilesResultSet.getLong(SQLQueriesStorage.COLUMN_USER_ID));
-            profile.setFirstName(profilesResultSet.getString(SQLQueriesStorage.COLUMN_FIRST_NAME));
-            profile.setLastName(profilesResultSet.getString(SQLQueriesStorage.COLUMN_LAST_NAME));
-            profile.setPatronymic(profilesResultSet.getString(SQLQueriesStorage.COLUMN_PATRONYMIC));
-            profile.setAddressLocation(profilesResultSet.getString(SQLQueriesStorage.COLUMN_ADDRESS_LOCATION));
-            profile.setPhoneNumber(profilesResultSet.getString(SQLQueriesStorage.COLUMN_PHONE_NUMBER));
-            profilesList.add(profile);
-        }
+    private void fillStatement(PreparedStatement preparedStatement, DeliveryProfile deliveryProfile)
+            throws SQLException {
+        preparedStatement.setString(INDEX_1, deliveryProfile.getFirstName());
+        preparedStatement.setString(INDEX_2, deliveryProfile.getLastName());
+        preparedStatement.setString(INDEX_3, deliveryProfile.getPatronymic());
+        preparedStatement.setString(INDEX_4, deliveryProfile.getAddressLocation());
+        preparedStatement.setString(INDEX_5, deliveryProfile.getPhoneNumber());
+    }
+
+    @Override
+    protected void fillInsertStatement(PreparedStatement preparedStatement, DeliveryProfile entity) throws SQLException {
+        fillStatement(preparedStatement, entity);
+        preparedStatement.setLong(INDEX_6, entity.getUserId());
+    }
+
+    @Override
+    protected void fillUpdateStatement(PreparedStatement preparedStatement, DeliveryProfile entity) throws SQLException {
+        fillStatement(preparedStatement, entity);
+        preparedStatement.setLong(INDEX_6, entity.getId());
+    }
+
+    @Override
+    protected void fillRemoveStatement(PreparedStatement preparedStatement, DeliveryProfile entity) throws SQLException {
+        preparedStatement.setLong(INDEX_1, entity.getId());
+    }
+
+    @Override
+    protected void setEntityPrimaryKeyField(PreparedStatement preparedStatement, DeliveryProfile entity) throws SQLException {
+        entity.setId(getGeneratedPrimaryKey(preparedStatement));
+    }
+
+    private DeliveryProfile getFilledProfile(ResultSet resultSet) throws SQLException {
+        DeliveryProfile profile = new DeliveryProfile();
+        profile.setId(resultSet.getLong(COLUMN_ID));
+        profile.setUserId(resultSet.getLong(COLUMN_USER_ID));
+        profile.setFirstName(resultSet.getString(COLUMN_FIRST_NAME));
+        profile.setLastName(resultSet.getString(COLUMN_LAST_NAME));
+        profile.setPatronymic(resultSet.getString(COLUMN_PATRONYMIC));
+        profile.setAddressLocation(resultSet.getString(COLUMN_ADDRESS_LOCATION));
+        profile.setPhoneNumber(resultSet.getString(COLUMN_PHONE_NUMBER));
+        return profile;
     }
 }

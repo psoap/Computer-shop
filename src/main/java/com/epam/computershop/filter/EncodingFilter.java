@@ -5,28 +5,23 @@ import java.io.IOException;
 
 public class EncodingFilter implements Filter {
     private static final String ENCODING_PARAM = "encoding";
-    private static String encoding;
+    private String encoding;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        String enc = filterConfig.getInitParameter(ENCODING_PARAM);
-        if (encoding == null) {
-            if (enc != null) {
-                encoding = enc;
-            } else {
-                encoding = "utf-8";
-            }
-        }
+    public void init(FilterConfig filterConfig) {
+        String configEncoding = filterConfig.getInitParameter(ENCODING_PARAM);
+        encoding = (configEncoding != null) ? configEncoding : "utf-8";
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws IOException, ServletException {
         servletRequest.setCharacterEncoding(encoding);
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
     @Override
     public void destroy() {
-
+        //Unsupported method
     }
 }

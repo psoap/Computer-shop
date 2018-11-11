@@ -18,7 +18,7 @@
                                                                                                     name="name"/><br/>
                         <label><fmt:message key="txt.category" bundle="${langBundle}"/>:</label> <select
                             name="category_id">
-                        <c:forEach var="category" items="${sessionScope.lang_categories}">
+                        <c:forEach var="category" items="${sessionScope.current_locale_categories}">
                             <c:if test="${empty category.children}">
                                 <option value="${category.id}">
                                     <c:out value="${category.name}"/>
@@ -45,7 +45,7 @@
                                                                                                     value="${requestScope.product.name}"/><br/>
                         <label><fmt:message key="txt.category" bundle="${langBundle}"/>:</label> <select
                             name="category_id">
-                        <c:forEach var="category" items="${sessionScope.lang_categories}">
+                        <c:forEach var="category" items="${sessionScope.current_locale_categories}">
                             <c:if test="${empty category.children}">
                                 <option value="${category.id}" <c:if
                                         test="${category.id eq requestScope.product.categoryId}">

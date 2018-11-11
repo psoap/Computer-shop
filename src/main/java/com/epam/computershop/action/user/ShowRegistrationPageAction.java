@@ -1,14 +1,15 @@
 package com.epam.computershop.action.user;
 
 import com.epam.computershop.action.Action;
+import com.epam.computershop.enums.UserRole;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ShowRegistrationPageAction extends Action {
 
-    public ShowRegistrationPageAction(short accessRoleId) {
-        super(accessRoleId);
+    public ShowRegistrationPageAction(UserRole accessRole) {
+        super(accessRole);
     }
 
     @Override
