@@ -16,7 +16,7 @@ abstract class Dao<T extends Entity> {
 
     public abstract void remove(T entity) throws SQLException, ConnectionPoolException;
 
-    protected void defaultInsert(T entity, String sql) throws ConnectionPoolException, SQLException {
+    protected void insertDefault(T entity, String sql) throws ConnectionPoolException, SQLException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         try (PreparedStatement insertPreparedStatement =
                      connection.prepareStatement(sql,
@@ -29,7 +29,7 @@ abstract class Dao<T extends Entity> {
         }
     }
 
-    protected void defaultUpdate(T entity, String sql) throws ConnectionPoolException, SQLException {
+    protected void updateDefault(T entity, String sql) throws ConnectionPoolException, SQLException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         try (PreparedStatement updatePreparedStatement =
                      connection.prepareStatement(sql)) {
@@ -40,7 +40,7 @@ abstract class Dao<T extends Entity> {
         }
     }
 
-    protected void defaultRemove(T entity, String sql) throws ConnectionPoolException, SQLException {
+    protected void removeDefault(T entity, String sql) throws ConnectionPoolException, SQLException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         try (PreparedStatement deletePreparedStatement =
                      connection.prepareStatement(sql)) {

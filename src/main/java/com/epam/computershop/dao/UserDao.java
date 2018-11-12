@@ -15,17 +15,17 @@ import static com.epam.computershop.util.SQLQueriesStorage.*;
 public class UserDao extends Dao<User> {
     @Override
     public void insert(User entity) throws SQLException, ConnectionPoolException {
-        defaultInsert(entity, INSERT_USER);
+        insertDefault(entity, INSERT_USER);
     }
 
     @Override
     public void update(User entity) throws SQLException, ConnectionPoolException {
-        defaultUpdate(entity, UPDATE_USER);
+        updateDefault(entity, UPDATE_USER);
     }
 
     @Override
     public void remove(User entity) throws SQLException, ConnectionPoolException {
-        defaultRemove(entity, DELETE_USER);
+        removeDefault(entity, DELETE_USER);
     }
 
     public List<User> findAll() throws SQLException, ConnectionPoolException {

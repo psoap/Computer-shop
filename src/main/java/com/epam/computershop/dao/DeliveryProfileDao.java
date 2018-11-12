@@ -14,17 +14,17 @@ import static com.epam.computershop.util.SQLQueriesStorage.*;
 public class DeliveryProfileDao extends Dao<DeliveryProfile> {
     @Override
     public void insert(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
-        defaultInsert(entity,INSERT_DELIVERY_PROFILE);
+        insertDefault(entity,INSERT_DELIVERY_PROFILE);
     }
 
     @Override
     public void update(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
-        defaultUpdate(entity, UPDATE_DELIVERY_PROFILE);
+        updateDefault(entity, UPDATE_DELIVERY_PROFILE);
     }
 
     @Override
     public void remove(DeliveryProfile entity) throws SQLException, ConnectionPoolException {
-        defaultRemove(entity, DELETE_DELIVERY_PROFILE);
+        removeDefault(entity, DELETE_DELIVERY_PROFILE);
     }
 
     public List<DeliveryProfile> findAllByUserId(long userId) throws SQLException, ConnectionPoolException {

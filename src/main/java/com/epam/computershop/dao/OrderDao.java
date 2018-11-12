@@ -15,17 +15,17 @@ import static com.epam.computershop.util.SQLQueriesStorage.*;
 public class OrderDao extends Dao<Order> {
     @Override
     public void insert(Order entity) throws SQLException, ConnectionPoolException {
-        defaultInsert(entity, INSERT_ORDER);
+        insertDefault(entity, INSERT_ORDER);
     }
 
     @Override
     public void update(Order entity) throws SQLException, ConnectionPoolException {
-        defaultUpdate(entity, UPDATE_ORDER);
+        updateDefault(entity, UPDATE_ORDER);
     }
 
     @Override
     public void remove(Order entity) throws SQLException, ConnectionPoolException {
-        defaultRemove(entity, DELETE_ORDER);
+        removeDefault(entity, DELETE_ORDER);
     }
 
     public Order findById(long id) throws SQLException, ConnectionPoolException {

@@ -42,17 +42,17 @@ public class CategoryDao extends Dao<Category> {
 
     @Override
     public void insert(Category entity) throws SQLException, ConnectionPoolException {
-        defaultInsert(entity, INSERT_CATEGORY);
+        insertDefault(entity, INSERT_CATEGORY);
     }
 
     @Override
     public void update(Category entity) throws SQLException, ConnectionPoolException {
-        defaultUpdate(entity, UPDATE_CATEGORY_TRANSLATION);
+        updateDefault(entity, UPDATE_CATEGORY_TRANSLATION);
     }
 
     @Override
     public void remove(Category entity) throws SQLException, ConnectionPoolException {
-        defaultRemove(entity, DELETE_CATEGORY);
+        removeDefault(entity, DELETE_CATEGORY);
     }
 
     public Map<Locale, CopyOnWriteArrayList<Category>> findAllByEachLocale(List<Locale> locales)

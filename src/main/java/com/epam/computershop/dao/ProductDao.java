@@ -14,17 +14,17 @@ import static com.epam.computershop.util.SQLQueriesStorage.*;
 public class ProductDao extends Dao<Product> {
     @Override
     public void insert(Product entity) throws SQLException, ConnectionPoolException {
-        defaultInsert(entity, INSERT_PRODUCT);
+        insertDefault(entity, INSERT_PRODUCT);
     }
 
     @Override
     public void update(Product entity) throws SQLException, ConnectionPoolException {
-        defaultUpdate(entity, UPDATE_PRODUCT);
+        updateDefault(entity, UPDATE_PRODUCT);
     }
 
     @Override
     public void remove(Product entity) throws SQLException, ConnectionPoolException {
-        defaultRemove(entity, DELETE_PRODUCT);
+        removeDefault(entity, DELETE_PRODUCT);
     }
 
     public List<Product> findAllByCategory(short id, short limit, int offset)
