@@ -24,8 +24,6 @@ import com.epam.computershop.enums.UserRole;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ActionFactory {
     public static final String ACTION_USER_LOGIN = "/auth";
@@ -132,13 +130,12 @@ public class ActionFactory {
     public static ActionFactory getInstance() {
         ActionFactory actionFactory = currentActionFactory;
         if (actionFactory == null) {
-            Lock lock = new ReentrantLock();
-            lock.lock();
-            actionFactory = currentActionFactory;
-            if (actionFactory == null) {
-                actionFactory = currentActionFactory = new ActionFactory();
+            synchronized (ActionFactory.class){
+                actionFactory = currentActionFactory;
+                if (actionFactory == null) {
+                    actionFactory = currentActionFactory = new ActionFactory();
+                }
             }
-            lock.unlock();
         }
         return actionFactory;
     }

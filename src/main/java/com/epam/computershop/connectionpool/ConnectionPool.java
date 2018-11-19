@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ConnectionPool {
     private static final String PROPERTY_FILE_NAME = "database.properties";
@@ -46,13 +44,12 @@ public class ConnectionPool {
     public static ConnectionPool getInstance() throws ConnectionPoolException {
         ConnectionPool connectionPool = currentConnectionPool;
         if (connectionPool == null) {
-            Lock lock = new ReentrantLock();
-            lock.lock();
-            connectionPool = currentConnectionPool;
-            if (connectionPool == null) {
-                connectionPool = currentConnectionPool = new ConnectionPool();
+            synchronized (ConnectionPool.class){
+                connectionPool = currentConnectionPool;
+                if (connectionPool == null) {
+                    connectionPool = currentConnectionPool = new ConnectionPool();
+                }
             }
-            lock.unlock();
         }
         return connectionPool;
     }

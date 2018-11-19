@@ -32,12 +32,8 @@ public class ShowChangePageDeliveryProfileAction extends Action {
 
         if (profileIdFromRequest != INVALID_NUMBER) {
             User currentUser = (User) req.getSession().getAttribute(CURRENT_USER);
-            DeliveryProfileDao profileDao = new DeliveryProfileDao();
             try {
-                DeliveryProfile profile = profileDao.findById(profileIdFromRequest);
-                if ((profile != null) && (profile.getUserId() == currentUser.getId())) {
-                    req.setAttribute(CURRENT_DELIVERY_PROFILE, profile);
-                }
+                find(currentUser, profileIdFromRequest, req);
             } catch (SQLException | ConnectionPoolException e) {
                 LOGGER.error("Failed to select delivery profile by user " + currentUser.getLogin(), e);
                 messagesForJsp.add(GENERAL_ERROR_ACTION_FAILED);
@@ -46,5 +42,14 @@ public class ShowChangePageDeliveryProfileAction extends Action {
             }
         }
         return responseUrl;
+    }
+
+    private void find(User currentUser, long profileId, HttpServletRequest req)
+            throws ConnectionPoolException, SQLException {
+        DeliveryProfileDao profileDao = new DeliveryProfileDao();
+        DeliveryProfile profile = profileDao.findById(profileId);
+        if ((profile != null) && (profile.getUserId() == currentUser.getId())) {
+            req.setAttribute(CURRENT_DELIVERY_PROFILE, profile);
+        }
     }
 }

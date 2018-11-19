@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import static com.epam.computershop.util.ConstantStorage.*;
 
 public class UploadServlet extends HttpServlet {
-    private static final long serialVersionUID = System.currentTimeMillis();
+    private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(UploadServlet.class);
     private static final String URI_SEPARATOR = "/";
     private static final int FILENAME_LENGTH = 7;

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
 public class MainServlet extends HttpServlet {
-    private static final long serialVersionUID = System.currentTimeMillis();
+    private static final long serialVersionUID = 1L;
     private static final ActionFactory ACTION_FACTORY = ActionFactory.getInstance();
 
     @Override
